@@ -21,6 +21,7 @@
                                    :pretty-print true}}]}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.145"]
+                 [com.lucasbradstreet/cljs-uuid-utils "1.0.2"]
                  [re-frame "0.4.1"]
                  [reagent-forms "0.5.12"]
                  [prismatic/schema "1.0.1"]

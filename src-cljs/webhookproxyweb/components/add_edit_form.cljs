@@ -1,6 +1,7 @@
 (ns webhookproxyweb.components.add-edit-form
   (:require [re-frame.core :refer [dispatch subscribe]]
             [schema.core :as s]
+            [cljs-uuid-utils.core :as uuid]
             [reagent.core :as reagent :refer [atom]]
             [reagent-forms.core :refer [bind-fields]]
             [webhookproxyweb.model :as model]))
@@ -20,12 +21,16 @@
     (.setTimeout js/window #(dispatch [:confirmed server-payload]) 10)
     db))
 
+
+(defn- upsert [coll item]
+  (conj (filter #(not= (:id %) (:id item)) coll) item))
+
 (defn confirmed [db [_ payload]]
   "merge payload into main db atom"
   (let [items (:items db)]
     (-> db
-      (assoc :items (conj items payload))
-      (assoc :active-screen :listing))))
+      (assoc :items (upsert items payload))
+      (assoc :active-screen [:listing]))))
 
 (defn rejected [db [_ payload]]
   "if server returns an error or bad response"
@@ -33,9 +38,12 @@
 
 (declare form-input) 
 
-(defn component []
+(defn component [item]
   (let [valid-tuple (subscribe [:form-valid])
-        staging (atom { :name "" :description "" :subdomain ""})]
+        staging (atom (or item {:id  (uuid/make-random-uuid)
+                                :name ""
+                                :description "" 
+                                :subdomain ""}))]
     (fn [] 
       (let [[valid validation-errors] @valid-tuple]
         [:div
