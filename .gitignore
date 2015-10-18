@@ -10,6 +10,7 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
+.exrc
 depref/
+/resources/*
 !/resources/public/index.html
-/resources
