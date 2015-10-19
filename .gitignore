@@ -14,3 +14,4 @@ pom.xml.asc
 depref/
 /resources/*
 !/resources/public/index.html
+.env
