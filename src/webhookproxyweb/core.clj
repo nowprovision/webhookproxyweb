@@ -1,8 +1,15 @@
 (ns webhookproxyweb.core
-  (:require [com.stuartsierra.component :as component])
   (:require [webhookproxyweb.system :as system]))
 
 (defn -main [& args]
-  (let [system (system/main-system {})
-        started-system (component/start system)]
-    (println "YEAH")))
+  (println "Starting")
+  (let [system (system/main-system)
+        started-system (system/start system)]
+    (.addShutdownHook (Runtime/getRuntime) 
+                      (Thread. (fn [] 
+                                 (println "Shutting down")
+                                 (system/stop started-system)
+                                 (println "Shut down")
+                                 )))
+    (println "Started")))
+

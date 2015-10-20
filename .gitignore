@@ -15,3 +15,4 @@ depref/
 /resources/*
 !/resources/public/index.html
 .env
+config.edn
