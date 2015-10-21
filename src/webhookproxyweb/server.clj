@@ -1,7 +1,7 @@
 (ns webhookproxyweb.server
-  (:require [webhookproxyweb.web :as web])
-  (:require [org.httpkit.server :as http-kit])
-  (:require [com.stuartsierra.component :as component]))
+  (:require [com.stuartsierra.component :as component]
+            [org.httpkit.server :as http-kit]
+            [webhookproxyweb.web :as web]))
 
 (defrecord HttpKitServer [web-app port] 
   component/Lifecycle

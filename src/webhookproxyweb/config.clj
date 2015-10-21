@@ -1,12 +1,11 @@
 (ns webhookproxyweb.config
-  (:require [clojure.edn :as edn])
-  (:require [schema.core :as s :include-macros true])
-  (:require [schema.coerce :as coerce]))
+  (:require [clojure.edn :as edn]
+            [schema.coerce :as coerce]
+            [schema.core :as s]))
 
 (def ^{:version 1 } SystemConfig
   "Schema ~type for system config"
   {:http-server { :port s/Int }  
-   :figwheel (type {})
    :db {:subprotocol s/Str
         :subname s/Str
         :host s/Str

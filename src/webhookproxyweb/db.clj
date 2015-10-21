@@ -1,25 +1,18 @@
 (ns webhookproxyweb.db
-  (:require [com.stuartsierra.component :as component])
-  (:require [clj-uuid :as uuid])
-  (:require [korma.core :refer [database 
-                                insert
-                                table 
-                                create-entity 
-                                values] :as korma])
-  (:require [korma.db :as db]))
+  (:require [clj-uuid :as uuid]
+            [com.stuartsierra.component :as component]
+            [korma.core :as korma :refer [create-entity defentity insert table
+                                          values]]
+            [korma.db :as db]))
 
 (defrecord Database [db-spec]
   component/Lifecycle
   (start [component]
     (let [conn (db/create-db (db/postgres db-spec))
-          ; when using relations sqlkorma has enforced var/ns/macro pain to deal with
-          whitelist-entity (-> "whitelist-entity" create-entity (table :whitelist))
-          webhooks-entity (-> "webhooks-entity" create-entity (table :webhooks))] 
+          _ @(:pool conn)] ; eager init pool for fast failure
       (-> component
-          (assoc :write-lock (Object.))
-          (assoc :pool (-> conn :pool))
-          (assoc :webhooks (database webhooks-entity conn))
-          (assoc :whitelist (database whitelist-entity conn)))))
+          (assoc :write-lock (Object.)) 
+          (assoc :pool (-> conn :pool)))))
   (stop [component]
     (-> component
         :pool
@@ -28,20 +21,29 @@
         .close)
     (dissoc component :pool)))
 
+(defentity whitelist-entity
+  (create-entity)
+  (table :whistlist))
+
+(defentity webhook-entity
+  (create-entity)
+  (table :webhooks))
+
 (defn for-user [db user-id]
-  (-> db
-      :webhooks
+  (db/with-db (:pool db)
+    (->
+      webhook-entity
       (korma/select*)
       (korma/where { :userid user-id })
-      (korma/select)))
+      (korma/select))))
 
 (defn find-subdomain [db subdomain]
-  (seq (-> db
-           :webhooks
-           (korma/select*)
-           (korma/where { :subdomain subdomain })
-           (korma/limit 1)
-           (korma/select))))
+  (seq (db/with-db (:pool db)
+         (-> webhook-entity
+             (korma/select*)
+             (korma/where { :subdomain subdomain })
+             (korma/limit 1)
+             (korma/select)))))
 
 (defn add [db item]
   (locking (:write-lock db)
@@ -52,9 +54,9 @@
       (let [item (if (:id item) 
                    item
                    (assoc item :id (str (uuid/v4))))]
-        (-> db
-            :webhooks
-            (korma/insert*)
-            (values item)
-            (insert))))))
+        (db/with-db (:pool db)
+          (-> webhook-entity
+              (korma/insert*)
+              (values item)
+              (insert)))))))
 

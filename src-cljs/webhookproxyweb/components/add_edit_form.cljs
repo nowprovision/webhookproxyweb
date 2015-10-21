@@ -1,6 +1,7 @@
 (ns webhookproxyweb.components.add-edit-form
   (:require [re-frame.core :refer [dispatch subscribe]]
             [schema.core :as s]
+            [ajax.core :refer [POST]]
             [cljs-uuid-utils.core :as uuid]
             [reagent.core :as reagent :refer [atom]]
             [reagent-forms.core :refer [bind-fields]]
@@ -18,7 +19,15 @@
 (defn validated [db [_ staging-payload]]
   "send payload to server, mocked for now"
   (let [server-payload staging-payload]
-    (.setTimeout js/window #(dispatch [:confirmed server-payload]) 10)
+    (POST "/api/webhooks" {:format :json 
+                           :params staging-payload 
+                           :response-format :json
+                           :keywords? true
+                           :handler (fn [server-payload]
+                                      (dispatch [:confirmed server-payload]))
+                           :server-handler (fn [server-payload]
+                                             (dispatch [:rejected server-payload]))
+                           })
     db))
 
 
@@ -40,7 +49,7 @@
 
 (defn component [item]
   (let [valid-tuple (subscribe [:form-valid])
-        staging (atom (or item {:id  (uuid/make-random-uuid)
+        staging (atom (or item {:id  (str (uuid/make-random-uuid))
                                 :name ""
                                 :description "" 
                                 :subdomain ""}))]

@@ -1,6 +1,7 @@
 (ns webhookproxyweb.core
   (:require-macros [reagent.ratom :refer [reaction]])  
   (:require [cljs-uuid-utils.core :as uuid]
+            [ajax.core :refer [GET]]
             [webhookproxyweb.model :as model]
             [webhookproxyweb.components.add-edit-form :as add-edit-form]
             [webhookproxyweb.components.listing :as listing]
@@ -18,7 +19,10 @@
    {:id (uuid/make-random-uuid) :name "dropbox" :description "dropbox webhook" :subdomain "dropbox"}])
 
 (defn fake-initialize [db _]
-  (js/setTimeout (fn [] (dispatch [:reset-db seed-data])) 250)
+  (GET "/api/webhooks" {:response-format :json
+                        :keywords? true 
+                        :handler (fn [seed-data] (dispatch [:reset-db seed-data]))
+                        })
   db) 
 
 (defn reset-db [db [_ payload]]
@@ -62,13 +66,13 @@
            )
          ]))))
 
-(defn root-render [& args] 
+(defn ^:export rootrender [& args] 
   (reagent/render [root-template] (js/document.getElementById "app")))
 
 (defn ^:export run
   []
   (dispatch [:initialize])
-  (root-render))
+  (rootrender))
 
 
 

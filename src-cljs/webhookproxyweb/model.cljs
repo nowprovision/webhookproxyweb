@@ -8,7 +8,7 @@
 
 (def WebHookProxyEntry 
   {:name not-blank
-   :id cljs.core/UUID
+   :id not-blank
    :subdomain not-blank
    :description not-blank })
 
