@@ -3,15 +3,17 @@
             [schema.coerce :as coerce]
             [schema.core :as s]))
 
-(def ^{:version 1 } SystemConfig
+(def ^{:version 1} SystemConfig
   "Schema ~type for system config"
-  {:http-server { :port s/Int }  
-   :db {:subprotocol s/Str
-        :subname s/Str
-        :host s/Str
-        :port s/Int
-        :user s/Str
-        :password s/Str } })
+  {:http-server {:port s/Int}
+   :github-auth {:client-id s/Str
+                 :client-secret s/Str }
+   :db          {:subprotocol s/Str
+                 :subname     s/Str
+                 :host        s/Str
+                 :port        s/Int
+                 :user        s/Str
+                 :password    s/Str}})
 
 (def ^:private string->int (coerce/safe #(if (string? %) (Integer/parseInt %) %)))
 

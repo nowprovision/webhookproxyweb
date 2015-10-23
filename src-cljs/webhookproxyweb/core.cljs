@@ -53,6 +53,8 @@
     (fn []
       (let [[active-screen & screen-args] @screen-atom]
         [:div 
+         [:h1 "Social Login"]
+         [:a { :target "_new" :href "https://github.com/login/oauth/authorize?scope=user:email&client_id=db15f5f3cf7a6e1168a1" } "Auth to github"]
          [:h1 "Webhookproxy"] 
          (case active-screen
            :add-form
