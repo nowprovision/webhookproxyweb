@@ -9,11 +9,12 @@
   (println "Rollback migration run: (ragrepl/rollback (db-config))"))
 
 (defn db-config []
-  (let [db-spec {}]
+  (let [config (config/edn->config "config.edn")
+        db-spec (:db config)]
     {:datastore (jdbc/sql-database db-spec)
      :migrations (jdbc/load-resources "migrations")}))
 
-(def active-system (atom nil))
+(defonce active-system (atom nil))
 
 (defn start [& args]
   (let [init-system (system/main-system)]

@@ -1,4 +1,4 @@
-(ns webhookproxyweb.auth
+(ns webhookproxyweb.external.github
   (:require [clj-http.client :as client]
             [clj-http.conn-mgr :as conn-mgr]
             [com.stuartsierra.component :as component]))
@@ -6,8 +6,7 @@
 (defrecord GithubConnectionManager [config cm]
   component/Lifecycle
   (start [this]
-    (assoc this :cm (conn-mgr/make-reusable-conn-manager 
-                      {:timeout 10 :threads 10})))
+    (assoc this :cm (conn-mgr/make-reusable-conn-manager {:timeout 10 :threads 10})))
   (stop [this]
     (when-let [cm (:cm this)]
       (conn-mgr/shutdown-manager cm))
@@ -15,10 +14,10 @@
 
 (declare code->access-token access-token->identity)
 
-(defn authenticate [github-cm payload]
-  (->> payload
-      (code->access-token github-cm)
-      (access-token->identity github-cm)))
+(defn authenticate [github-cm code]
+  (->> { :code code }
+       (code->access-token github-cm)
+       (access-token->identity github-cm)))
 
 (defn default-options [cm m] 
   (merge {:connection-manager cm 

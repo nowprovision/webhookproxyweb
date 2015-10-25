@@ -5,16 +5,21 @@
             [ring.middleware.defaults :refer :all]
             [ring.middleware.file :refer :all]
             [ring.middleware.json :refer :all]
+            [webhookproxyweb.handlers.users :as user-handlers]
             [webhookproxyweb.auth :as auth]
-            [webhookproxyweb.db :as db]))
+            [webhookproxyweb.db :as db]
+            [taoensso.sente :as sente]
+            [taoensso.sente.server-adapters.http-kit 
+             :refer [sente-web-server-adapter]]
+            ))
 
 
 (declare add-webhook apiroutes)
 
-(defrecord WebApp [db github-cm] 
+(defrecord WebApp [users] 
   component/Lifecycle
   (start [component]
-    (assoc component :handler (-> (apply routes (apiroutes db github-cm))
+    (assoc component :handler (-> (apply routes (apiroutes users))
                                   (wrap-json-body {:bigdecimals? true :keywords? true })
                                   wrap-json-response
                                   (wrap-file "resources/public" { :index-files? false })
@@ -35,14 +40,8 @@
   (let [user-id (or (:userid session) 1)]
     (db/for-user db-inst user-id)))
 
-(defn apiroutes [db-inst github-cm]
+(defn apiroutes [users]
   [(GET "/" req (io/file "resources/public/index.html"))
-   (GET "/callback" req {:headers { "Content-Type" "text/html" }
-                         :body (auth/authenticate github-cm {:code (-> req :params :code) }) 
-                         })
-   (GET "/api/webhooks" req {:body (get-webhooks db-inst (:session req)) })
-   (POST "/api/webhooks" req {:body (add-webhook db-inst 
-                                                 (:session req)
-                                                 (:body req)) })])
+   (GET "/callback" req (user-handlers/github-callback users req))])
 
 
