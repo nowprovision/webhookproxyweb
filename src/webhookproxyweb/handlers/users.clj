@@ -1,15 +1,34 @@
 (ns webhookproxyweb.handlers.users
-  (:require [webhookproxyweb.domain.users :as users]))
+  (:require [clojure.java.io :as io]
+            [compojure.core :refer :all]
+            [com.stuartsierra.component :as component]
+            [webhookproxyweb.handlers.shared :refer [with-security 
+                                                     with-static
+                                                     with-no-cache]]
+            [webhookproxyweb.domain.users :as users]))
 
-(defn github-callback [users req]
+(declare build-routes)
+
+(defrecord UserHandlers [users]
+  component/Lifecycle
+  (start [component]
+    (assoc component :routes (build-routes users)))
+  (stop [component] component))
+
+(declare github-auth-callback)
+
+(defn build-routes [users]
+  (with-security [:open]
+    (GET "/callback" req (github-auth-callback users req))))
+             
+(defn github-auth-callback [users req]
   (let [code (-> req :params :code)
-        result (users/github-login users code)]
-    {:session { :authenticated? true :uid (:id result) }
-     :headers { "Content-Type" "text/html" }
-     :body (str "Logged in: " result)}))
-
-          
-
-
-      
+        user-id (users/github-login users code)]
+    {:session {:authenticated? true 
+               :uid user-id
+               :roles [:account-admin]}
+     :status 302
+     :headers (with-no-cache { "Location" "/loggedin" } )
+     :body "" }
+    ))
 

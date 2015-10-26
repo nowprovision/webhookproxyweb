@@ -1,0 +1,10 @@
+{:static { :root-path "resources/public" } 
+ :http-server {:port 8080 } 
+ :github-auth {:client-id "ab123456ab"
+               :client-secret "abc13" }
+ :db {:subprotocol "postgresql"
+      :subname "whp"
+      :user "postgres"
+      :password "password"
+      :port 5432
+      :host "localhost" } }

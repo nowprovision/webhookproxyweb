@@ -1,47 +1,29 @@
 (ns webhookproxyweb.web
-  (:require [clojure.java.io :as io]
-            [com.stuartsierra.component :as component]
-            [compojure.core :refer :all]
-            [ring.middleware.defaults :refer :all]
-            [ring.middleware.file :refer :all]
-            [ring.middleware.json :refer :all]
-            [webhookproxyweb.handlers.users :as user-handlers]
-            [webhookproxyweb.auth :as auth]
-            [webhookproxyweb.db :as db]
-            [taoensso.sente :as sente]
-            [taoensso.sente.server-adapters.http-kit 
-             :refer [sente-web-server-adapter]]
-            ))
+  "component for route aggregation and handler building"
+  (:require [com.stuartsierra.component :as component]
+            [compojure.core :as compojure]
+            [ring.middleware.defaults :refer [api-defaults wrap-defaults]]
+            [ring.middleware.file :refer [wrap-file]]
+            [ring.middleware.json :refer [wrap-json-body wrap-json-response]]))
 
-
-(declare add-webhook apiroutes)
-
-(defrecord WebApp [users] 
+(defrecord WebApp [] 
   component/Lifecycle
   (start [component]
-    (assoc component :handler (-> (apply routes (apiroutes users))
-                                  (wrap-json-body {:bigdecimals? true :keywords? true })
-                                  wrap-json-response
-                                  (wrap-file "resources/public" { :index-files? false })
-                                  (wrap-defaults api-defaults))))
+    ;; iterate over passed-in components building combined list of routes
+    (let [route-providers (map second 
+                               (filter (fn [[k v]] (seq? (seq (:routes v))))
+                                       component))
+          routes (flatten (map :routes route-providers))]
+      (assoc component :routes routes)))
   (stop [component]
-    (dissoc component :handler)))
+    (dissoc component :routes)))
 
-
-(defn handler [web-app]
-  (:handler web-app))
-
-(defn add-webhook [db-inst session payload]
-  (let [user-id (or (:userid session) 1)
-        payload (assoc payload :userid user-id)]
-    (db/add db-inst payload)))
-
-(defn get-webhooks [db-inst session]
-  (let [user-id (or (:userid session) 1)]
-    (db/for-user db-inst user-id)))
-
-(defn apiroutes [users]
-  [(GET "/" req (io/file "resources/public/index.html"))
-   (GET "/callback" req (user-handlers/github-callback users req))])
-
+(defn handler [{:keys [routes]}]
+  "build a ring handler based on component routes"
+  (-> 
+    (apply compojure/routes (or routes []))
+    (wrap-json-body {:bigdecimals? true :keywords? true })
+    (wrap-json-response)
+    (wrap-file "resources/public" { :index-files? false })
+    (wrap-defaults (assoc api-defaults :session true))))
 

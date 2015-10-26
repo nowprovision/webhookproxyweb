@@ -39,4 +39,4 @@
                              :uid github-id
                              :email github-email }))
         user-id (:id user)]
-    user-id ))
+    user-id))

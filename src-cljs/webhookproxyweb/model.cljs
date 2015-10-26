@@ -9,6 +9,10 @@
 (def WebHookProxyEntry 
   {:name not-blank
    :id not-blank
+   (s/optional-key :new) s/Bool
+   (s/optional-key :active) s/Bool
+   (s/optional-key :deleted) s/Bool
+   (s/optional-key :userid) s/Str
    :subdomain not-blank
    :description not-blank })
 

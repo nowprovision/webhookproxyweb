@@ -9,7 +9,7 @@
   component/Lifecycle
   (start [component]
     (let [conn (kormadb/create-db (kormadb/postgres db-spec))
-          _ @(:pool conn)] ; eager init pool for fast failure
+          _ @(:pool conn)] ; todo: eager init pool for fast failure
       (-> component
           (assoc :write-lock (Object.)) 
           (assoc :pool (-> conn :pool)))))
@@ -37,32 +37,5 @@
   `(kormadb/with-db (:pool ~db#)
     ~@forms#))
 
-(defn for-user [db user-id]
-  (with-db db
-    (-> webhook-entity
-        (korma/select*)
-        (korma/where { :userid user-id })
-        (korma/select))))
-
-(defn find-subdomain [db subdomain]
-  (seq (with-db db
-         (-> webhook-entity
-             (korma/select*)
-             (korma/where { :subdomain subdomain })
-             (korma/limit 1)
-             (korma/select)))))
-
-(defn add [db item]
-  (locking (:write-lock db)
-    (let [subdomain-available (not (find-subdomain db (:subdomain item)))]
-      (when-not subdomain-available
-        (throw (ex-info "Subdomain already exists" 
-                        { :subdomain (:subdomain item) } )))
-      (let [item (if (:id item) item (assoc item :id (str (uuid/v4))))]
-        (with-db db
-          (-> webhook-entity
-              (korma/insert*)
-              (values item)
-              (insert)))))))
 
 

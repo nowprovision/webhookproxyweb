@@ -7,20 +7,19 @@
             [reagent-forms.core :refer [bind-fields]]
             [webhookproxyweb.model :as model]))
 
-(defn submitted [db [_ staging-payload]]
-  (let [errors (->>  staging-payload (s/check model/WebHookProxyEntry))]
+(defn submitted [db [_ payload]]
+  (let [errors (->>  (:data payload) (s/check model/WebHookProxyEntry))]
     (when-not errors
-      (dispatch [:validated staging-payload]))
+      (dispatch [:validated payload]))
     (-> db
         (assoc :valid? (not errors))
         (assoc :errors errors))))
       
 
 (defn validated [db [_ staging-payload]]
-  "send payload to server, mocked for now"
   (let [server-payload staging-payload]
     (POST "/api/webhooks" {:format :json 
-                           :params staging-payload 
+                           :params staging-payload  
                            :response-format :json
                            :keywords? true
                            :handler (fn [server-payload]
@@ -49,6 +48,7 @@
 
 (defn component [item]
   (let [valid-tuple (subscribe [:form-valid])
+        is-new (if item false true)
         staging (atom (or item {:id  (str (uuid/make-random-uuid))
                                 :name ""
                                 :description "" 
@@ -68,7 +68,7 @@
            (form-input "Description" { :field :text :id :description })
            (form-input "Subdomain" { :field :text :id :subdomain })
            ] staging] 
-         [:button {:on-click #(dispatch [:submitted @staging]) } "Add Item"]]
+         [:button {:on-click #(dispatch [:submitted { :data @staging :is-new is-new }]) } "Add Item"]]
         ))))
 
 (defn form-input [label input-attrs]

@@ -6,6 +6,7 @@
 (def ^{:version 1} SystemConfig
   "Schema ~type for system config"
   {:http-server {:port s/Int}
+   :static { :root-path s/Str }
    :github-auth {:client-id s/Str
                  :client-secret s/Str }
    :db          {:subprotocol s/Str
