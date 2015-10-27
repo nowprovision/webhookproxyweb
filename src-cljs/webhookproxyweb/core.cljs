@@ -110,7 +110,7 @@
   (reagent/render [root-template] (js/document.getElementById "app")))
 
 (defn ^:export login [& args]
-  (dispatch [:logged-in]))
+  (dispatch [:fetch-identity]))
 
 
 (defn ^:export run
