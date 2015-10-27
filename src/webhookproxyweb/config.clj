@@ -31,6 +31,10 @@
        (throw (ex-info "Unable to parse config" parse-error)))
      env-config-coerced)))
 
+(defmacro from-config [config-path]
+  "provides compile time access to config data for cljs"
+  (println config-path)
+  (get-in (edn->config "config.edn") config-path))
 
 (comment
   "dead environment variable style"

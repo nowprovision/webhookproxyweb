@@ -1,5 +1,6 @@
 (ns webhookproxyweb.core
-  (:require-macros [reagent.ratom :refer [reaction]])  
+  (:require-macros [reagent.ratom :refer [reaction]]  
+                   [webhookproxyweb.config :refer [from-config]])
   (:require [cljs-uuid-utils.core :as uuid]
             [ajax.core :refer [GET POST]]
             [webhookproxyweb.model :as model]
@@ -18,29 +19,43 @@
    {:id (uuid/make-random-uuid) :name "google drive" :description "google drive sdk" :subdomain "google" }
    {:id (uuid/make-random-uuid) :name "dropbox" :description "dropbox webhook" :subdomain "dropbox"}])
 
-(defn fake-initialize [db _]
+(defn fetch-webhooks [db _]
   (GET "/api/webhooks" {:response-format :json
                         :keywords? true 
-                        :handler (fn [seed-data] 
-                                   (dispatch [:logged-in])
-                                   (dispatch [:reset-db seed-data]))
+                        :handler (fn [webhooks] 
+                                   (dispatch [:reset-webhooks webhooks]))
                         :error-handler (fn [] nil)
                         })
   db) 
 
-(defn reset-db [db [_ payload]]
+(defn fetch-identity [db _]
+  (GET "/whoami" {:response-format :json
+                        :keywords? true 
+                        :handler (fn [user]
+                                   (when (:authenticated? user)
+                                     (dispatch [:reset-identity user])
+                                     (dispatch [:fetch-webhooks])
+                                     ))
+                        :error-handler (fn [] nil)
+                        })
+  db) 
+
+(defn reset-webhooks [db [_ payload]]
   (assoc db :items payload))
 
-(register-handler :initialize fake-initialize)
-(register-handler :reset-db  reset-db)
+(defn reset-identity [db [_ payload]]
+  (assoc db :logged-in-user payload))
+
+(register-handler :fetch-webhooks fetch-webhooks)
+(register-handler :fetch-identity  fetch-identity)
+(register-handler :reset-webhooks  reset-webhooks)
+(register-handler :reset-identity  reset-identity)
 
 (register-handler :submitted add-edit-form/submitted)
 (register-handler :validated add-edit-form/validated)
 (register-handler :confirmed add-edit-form/confirmed)
 (register-handler :rejected add-edit-form/rejected)
 
-(register-handler :logged-in (fn [db [_ payload]]
-                               (assoc db :active-user true)))
 
 (register-handler :log-out (fn [db [_ payload]]
                              (POST "/logout" {:format :json
@@ -52,7 +67,7 @@
 (register-sub :items-changed (fn [db _] (reaction (:items @db))))
 (register-sub :screen-changed (fn [db _] (reaction (or (:active-screen @db) [:listing]))))
 
-(register-sub :logged-in (fn [db _] (reaction (or (:active-user @db) false))))
+(register-sub :logged-in (fn [db _] (reaction (:logged-in-user @db))))
 
 (defn change-screen [db sargs]
   (println sargs)
@@ -61,6 +76,10 @@
 (register-handler :change-screen change-screen)
 
 ;(register-handler :show-edit add-edit-form/show-edit)
+
+(def github-login-url (str "https://github.com/login/oauth/authorize?"
+                           "scope=user:email&client_id="
+                           (from-config [:github-auth :client-id])))
 
 (defn root-template [] 
   (let [logged-in (subscribe [:logged-in])
@@ -84,7 +103,7 @@
            ])
         [:div 
          [:h1 "Please Login"]
-         [:a { :target "_new" :href "https://github.com/login/oauth/authorize?scope=user:email&client_id=db15f5f3cf7a6e1168a1" } "Auth to github"]]
+         [:a { :target "_new" :href github-login-url } "Auth to github"]]
         ))))
 
 (defn ^:export rootrender [& args] 
@@ -96,7 +115,7 @@
 
 (defn ^:export run
   []
-  (dispatch [:initialize])
+  (dispatch [:fetch-identity])
   (rootrender))
 
 
