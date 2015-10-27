@@ -14,19 +14,31 @@
     (select webhook-entity
             (where { :userid user-id }))))
 
+
+(defmacro wrap-pgsql-errors [& forms]
+  `(try
+     ~@forms
+     (catch org.postgresql.util.PSQLException pe#
+       (let [msg# (some->> pe# .getServerErrorMessage .getDetail)]
+         (println msg#)
+         (if (not= (.indexOf msg# "Key (subdomain)=") -1)
+           (throw (ex-info "Subdomain already exists" {:friendly true :type :pgsql }))
+           (throw))))))
+
 (defn add-for-user [db user-id payload]
-  (with-db db
-    (insert webhook-entity
-            (values (merge payload {:active true 
-                                    :deleted false
-                                    :userid user-id })))))
+  (wrap-pgsql-errors (with-db db
+                       (insert webhook-entity
+                               (values (merge payload {:active true 
+                                                       :deleted false
+                                                       :userid user-id }))))))
 
 (defn update-for-user [db user-id payload]
   (let [payload (merge payload {:active true 
                                 :deleted false
                                 :userid user-id })]
-    (with-db db
-      (update webhook-entity
-        (where {:id (:id payload) :userid user-id })
-        (set-fields payload))
-      payload)))
+    (wrap-pgsql-errors
+      (with-db db
+        (update webhook-entity
+                (where {:id (:id payload) :userid user-id })
+                (set-fields payload))))
+      payload))
