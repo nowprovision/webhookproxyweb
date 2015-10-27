@@ -18,10 +18,21 @@
   (stop [component]
     (dissoc component :routes)))
 
+(defn wrap-api-friendly-error [handler]
+  "intercept friendly exception as excepted api errors"
+  (fn [req]
+    (try (handler req)
+         (catch Throwable e
+           (if-let [friendly (some->> e ex-data :friendly)]
+             { :body {:friendly true :error (.getMessage e) } :status 500  }
+             (throw)
+             )))))
+
 (defn handler [{:keys [routes extra-middleware]}]
   "build a ring handler based on component routes"
   (let [handler (-> 
                   (apply compojure/routes (or routes []))
+                  (wrap-api-friendly-error)
                   (wrap-json-body {:bigdecimals? true :keywords? true })
                   (wrap-json-response)
                   (wrap-file "resources/public" { :index-files? false })
