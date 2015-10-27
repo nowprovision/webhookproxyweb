@@ -14,7 +14,7 @@ pom.xml.asc
 .hg/
 .exrc
 depref/
-/resources/*
-!/resources/public/index.html
+/resources/public/js/
+/resources/public/out/
 .env
 config.edn
