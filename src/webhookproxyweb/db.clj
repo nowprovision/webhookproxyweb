@@ -1,18 +1,14 @@
 (ns webhookproxyweb.db
-  (:require [clj-uuid :as uuid]
-            [com.stuartsierra.component :as component]
-            [korma.core :as korma :refer [create-entity defentity insert table
-                                          values]]
+  (:require [com.stuartsierra.component :as component]
+            [korma.core :refer [create-entity defentity table]]
             [korma.db :as kormadb]))
 
 (defrecord Database [db-spec]
   component/Lifecycle
   (start [component]
-    (let [conn (kormadb/create-db (kormadb/postgres db-spec))
-          _ @(:pool conn)] ; todo: eager init pool for fast failure
-      (-> component
-          (assoc :write-lock (Object.)) 
-          (assoc :pool (-> conn :pool)))))
+    (let [conn (kormadb/create-db (kormadb/postgres db-spec))] 
+      ; todo: eager init pool for fast failure
+      (-> component (assoc :pool (-> conn :pool)))))
   (stop [component]
     (-> component
         :pool

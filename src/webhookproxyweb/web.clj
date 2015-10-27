@@ -18,12 +18,14 @@
   (stop [component]
     (dissoc component :routes)))
 
-(defn handler [{:keys [routes]}]
+(defn handler [{:keys [routes extra-middleware]}]
   "build a ring handler based on component routes"
-  (-> 
-    (apply compojure/routes (or routes []))
-    (wrap-json-body {:bigdecimals? true :keywords? true })
-    (wrap-json-response)
-    (wrap-file "resources/public" { :index-files? false })
-    (wrap-defaults (assoc api-defaults :session true))))
+  (let [handler (-> 
+                  (apply compojure/routes (or routes []))
+                  (wrap-json-body {:bigdecimals? true :keywords? true })
+                  (wrap-json-response)
+                  (wrap-file "resources/public" { :index-files? false })
+                  (wrap-defaults (assoc api-defaults :session true)))]
+    (reduce (fn [acc middleware]
+              (middleware acc)) handler (or extra-middleware []))))
 

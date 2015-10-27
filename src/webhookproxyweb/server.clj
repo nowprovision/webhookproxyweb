@@ -5,14 +5,12 @@
 
 (defrecord HttpKitServer [web-app port] 
   component/Lifecycle
-  (start [component]
-    (let [port (or port 8080)]
-      (let [stopfn (http-kit/run-server (web/handler web-app) 
-                                        {:port port} )]
-        (assoc component :stopfn stopfn))))
+  (start [{:keys [port web-app] :or { port 8080 } :as component}]
+    (let [stopfn (http-kit/run-server (web/handler web-app) 
+                                      {:port port} )]
+      (assoc component :stopfn stopfn)))
   (stop [component]
-    (if-let [stopfn (:stopfn component)]
-      (do
-        (stopfn)
-      component))))
+    (when-let [stopfn (:stopfn component)]
+      (stopfn))
+    component))
 

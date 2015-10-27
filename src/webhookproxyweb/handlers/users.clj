@@ -2,9 +2,7 @@
   (:require [clojure.java.io :as io]
             [compojure.core :refer :all]
             [com.stuartsierra.component :as component]
-            [webhookproxyweb.handlers.shared :refer [with-security 
-                                                     with-static
-                                                     with-no-cache]]
+            [webhookproxyweb.handlers.shared :refer [with-security with-no-cache]]
             [webhookproxyweb.domain.users :as users]))
 
 (declare build-routes)
@@ -23,7 +21,7 @@
              
 (defn github-auth-callback [users req]
   (let [code (-> req :params :code)
-        user-id (users/github-login users code)]
+        user-id (users/github-enrollment-and-identify users code)]
     {:session {:authenticated? true 
                :uid user-id
                :roles [:account-admin]}
