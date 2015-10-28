@@ -30,6 +30,6 @@
       msg
       "not valid")))
 
-(defn errors->friendly [errors]
-  (for [[error-key error-type] errors]
-    (str (field->friendly error-key) " " (restriction->friendly error-type))))
+(defn error->friendly [error]
+  (let [[error-key error-type] error]
+    { :error (str (field->friendly error-key) " " (restriction->friendly error-type)) }))

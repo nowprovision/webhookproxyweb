@@ -32,8 +32,6 @@
      env-config-coerced)))
 
 (defmacro from-config [config-path]
-  "provides compile time access to config data for cljs"
-  (println config-path)
   (get-in (edn->config "config.edn") config-path))
 
 (comment

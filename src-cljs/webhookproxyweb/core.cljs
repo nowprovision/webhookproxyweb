@@ -14,11 +14,6 @@
 
 (enable-console-print!)
 
-(def seed-data  
-  [{:id (uuid/make-random-uuid) :name "github" :description "github webhook" :subdomain "gh" }
-   {:id (uuid/make-random-uuid) :name "google drive" :description "google drive sdk" :subdomain "google" }
-   {:id (uuid/make-random-uuid) :name "dropbox" :description "dropbox webhook" :subdomain "dropbox"}])
-
 (defn fetch-webhooks [db _]
   (GET "/api/webhooks" {:response-format :json
                         :keywords? true 
@@ -54,6 +49,7 @@
 (register-handler :submitted add-edit-form/submitted)
 (register-handler :validated add-edit-form/validated)
 (register-handler :confirmed add-edit-form/confirmed)
+(register-handler :sync-errored add-edit-form/sync-errored)
 (register-handler :rejected add-edit-form/rejected)
 
 
@@ -66,8 +62,8 @@
 (register-sub :form-valid (fn [db _] (reaction [(:valid? @db) (:errors @db)])))
 (register-sub :items-changed (fn [db _] (reaction (:items @db))))
 (register-sub :screen-changed (fn [db _] (reaction (or (:active-screen @db) [:listing]))))
-
 (register-sub :logged-in (fn [db _] (reaction (:logged-in-user @db))))
+(register-sub :forms (fn [db [_ form-id & args]] (reaction (-> @db :forms form-id))))
 
 (defn change-screen [db sargs]
   (println sargs)
@@ -75,11 +71,9 @@
 
 (register-handler :change-screen change-screen)
 
-;(register-handler :show-edit add-edit-form/show-edit)
-
 (def github-login-url (str "https://github.com/login/oauth/authorize?"
-                           "scope=user:email&client_id="
-                           (from-config [:github-auth :client-id])))
+                           "scope=user:email&client_id=" (from-config [:github-auth :client-id])))
+
 
 (defn root-template [] 
   (let [logged-in (subscribe [:logged-in])
@@ -112,12 +106,8 @@
 (defn ^:export login [& args]
   (dispatch [:fetch-identity]))
 
-
 (defn ^:export run
   []
   (dispatch [:fetch-identity])
   (rootrender))
-
-
-
 
