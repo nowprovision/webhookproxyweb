@@ -3,36 +3,48 @@
   (:require [clj-uuid :as uuid]
             [korma.core :refer [insert limit 
                                 update set-fields
+                                with
                                 select values where]]
-            [webhookproxyweb.db :refer [webhook-entity with-db]]
+            [webhookproxyweb.db :refer [webhook-entity 
+                                        whitelist-entity
+                                        with-db]]
             [webhookproxyweb.external.github :as github]))
 
+
 (defrecord WebHooks [db])
-
-(defn list-for-user [db user-id]
-  (with-db db
-    (select webhook-entity
-            (where { :userid user-id }))))
-
 
 (defmacro wrap-pgsql-errors [& forms]
   `(try
      ~@forms
      (catch org.postgresql.util.PSQLException pe#
        (let [msg# (some->> pe# .getServerErrorMessage .getDetail)]
-         (println msg#)
-         (if (not= (.indexOf msg# "Key (subdomain)=") -1)
-           (throw (ex-info "Subdomain already exists" {:friendly true :type :pgsql }))
-           (throw))))))
+         (if (and (string? msg#) (not= (.indexOf msg# "Key (subdomain)=") -1))
 
-(defn add-for-user [db user-id payload]
+           (throw (ex-info "Subdomain already exists" {:friendly true :type :pgsql }))
+           (throw pe#))))))
+
+(defn list-webhooks [{:keys [db]} user-id]
+  (with-db db
+    (select webhook-entity
+            (with whitelist-entity)
+            (where {:deleted false 
+                    :userid user-id }))))
+
+(defn get-webhook [{:keys [db]} user-id webhook-id]
+  (with-db db
+    (first (select webhook-entity
+            (with whitelist-entity)
+            (where {:id webhook-id 
+                    :userid user-id })))))
+
+(defn add-webhook [{:keys [db]} user-id payload]
   (wrap-pgsql-errors (with-db db
                        (insert webhook-entity
                                (values (merge payload {:active true 
                                                        :deleted false
                                                        :userid user-id }))))))
 
-(defn update-for-user [db user-id payload]
+(defn update-webhook [{:keys [db] :as webhooks} user-id payload]
   (let [payload (merge payload {:active true 
                                 :deleted false
                                 :userid user-id })]
@@ -41,4 +53,18 @@
         (update webhook-entity
                 (where {:id (:id payload) :userid user-id })
                 (set-fields payload))))
-      payload))
+    (get-webhook webhooks user-id (:id payload))))
+
+(defn add-whitelist [{:keys [db] :as webhooks} user-id webhook-id payload]
+  (let [webhook-ids (map :id (list-webhooks webhooks user-id))
+        correct-owner (boolean (some (set webhook-ids) [webhook-id]))]
+    (if-not correct-owner
+      (throw (ex-info (str "No webhook found for " webhook-id) 
+                      { :friendly true :type :security }))
+      (wrap-pgsql-errors 
+        (with-db db
+          (insert whitelist-entity
+                  (values (merge payload {:userid user-id 
+                                          :webhookid webhook-id
+                                          }))))))))
+

@@ -7,48 +7,6 @@
             [reagent-forms.core :refer [bind-fields]]
             [webhookproxyweb.model :as model]))
 
-(defn submitted [db [_ payload]]
-  (let [errors (->>  (:data payload) (s/check model/WebHookProxyEntry))]
-    (when-not errors
-      (dispatch [:validated payload]))
-    (-> db
-        (assoc-in [:forms (:form-id payload) :valid?] (not errors))
-        (assoc-in [:forms (:form-id payload) :errors] 
-                  (map model/error->friendly errors)))))
-      
-
-(defn validated [db [_ staging-payload]]
-  (let [server-payload (select-keys staging-payload [:data :is-new])]
-    (POST "/api/webhooks" {:format :json 
-                           :params server-payload  
-                           :response-format :json
-                           :keywords? true
-                           :handler (fn [server-payload]
-                                      (dispatch [:confirmed server-payload]))
-                           :error-handler (fn [error]
-                                             (dispatch [:sync-errored (:form-id staging-payload) error]))
-                           })
-    db))
-
-(defn sync-errored [db [_ form-id sync-error]]
-  (-> db
-      (assoc-in [:forms form-id :valid?] false)
-      (update-in [:forms form-id :errors]  #(conj % (:response sync-error)))))
-
-(defn- upsert [coll item]
-  (conj (filter #(not= (:id %) (:id item)) coll) item))
-
-(defn confirmed [db [_ payload]]
-  "merge payload into main db atom"
-  (let [items (:items db)]
-    (-> db
-      (assoc :items (upsert items payload))
-      (assoc :active-screen [:listing]))))
-
-(defn rejected [db [_ payload]]
-  "if server returns an error or bad response"
-  db)
-
 (declare form-input) 
 
 (defn component [item]
@@ -74,7 +32,12 @@
          (form-input "Description" { :field :text :id :description })
          (form-input "Subdomain" { :field :text :id :subdomain })
          ] staging] 
-       [:button {:on-click #(dispatch [:submitted { :data @staging :is-new is-new :form-id form-id }]) } 
+       [:button {:on-click #(dispatch [:submitted 
+                                       {:data @staging 
+                                        :schema model/WebHookProxyEntry
+                                        :sync-path "/api/webhooks"
+                                        :is-new is-new 
+                                        :form-id form-id }]) } 
           (if is-new "Add" "Update")]]
       )))
 

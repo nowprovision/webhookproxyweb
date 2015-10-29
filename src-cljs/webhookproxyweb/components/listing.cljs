@@ -10,7 +10,10 @@
          ^{:key (:name item)} 
          [:div 
           [:div (str (:name item) " | " (:description item) " | " (:subdomain item))]
-          [:button {:on-click #(dispatch [:change-screen :add-form item])} "Edit"]]
+          [:button {:on-click #(dispatch [:change-screen :add-form item])} "Edit Details"]
+          [:button {:on-click #(dispatch [:change-screen 
+                                          :whitelists 
+                                          :listing (:id item)])} "Edit IP Filters"]]
           )])))
 
 

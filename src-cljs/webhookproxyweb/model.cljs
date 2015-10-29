@@ -6,6 +6,11 @@
                  (s/pred #(and (string? %) (> (count (strings/trim %)) 0)))
                  {:constraint-msg "must not be blank"}))
 
+(def WhitelistEntry 
+  { :id not-blank
+    :description not-blank
+    :ip not-blank })
+
 (def WebHookProxyEntry 
   {:name not-blank
    :id not-blank
@@ -13,6 +18,7 @@
    (s/optional-key :active) s/Bool
    (s/optional-key :deleted) s/Bool
    (s/optional-key :userid) s/Str
+   (s/optional-key :whitelists) [WhitelistEntry]
    :subdomain not-blank
    :description not-blank })
 

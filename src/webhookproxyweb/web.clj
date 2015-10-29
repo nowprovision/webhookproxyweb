@@ -25,7 +25,7 @@
          (catch Throwable e
            (if-let [friendly (some->> e ex-data :friendly)]
              { :body {:friendly true :error (.getMessage e) } :status 500  }
-             (throw)
+             (throw e)
              )))))
 
 (defn handler [{:keys [routes extra-middleware]}]

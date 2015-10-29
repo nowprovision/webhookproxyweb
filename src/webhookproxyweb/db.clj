@@ -1,6 +1,6 @@
 (ns webhookproxyweb.db
   (:require [com.stuartsierra.component :as component]
-            [korma.core :refer [create-entity defentity table]]
+            [korma.core :refer [create-entity defentity table has-many]]
             [korma.db :as kormadb]))
 
 (defrecord Database [db-spec]
@@ -18,15 +18,13 @@
     (dissoc component :pool)))
 
 (defentity whitelist-entity
-  (create-entity)
-  (table :whistlist))
+  (table :whitelist))
 
 (defentity webhook-entity
-  (create-entity)
-  (table :webhooks))
+  (table :webhooks)
+  (has-many whitelist-entity {:fk :webhookid }))
 
 (defentity user-entity
-  (create-entity)
   (table :users))
 
 (defmacro with-db [db# & forms#]

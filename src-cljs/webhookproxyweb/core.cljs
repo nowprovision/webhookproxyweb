@@ -4,8 +4,10 @@
   (:require [cljs-uuid-utils.core :as uuid]
             [ajax.core :refer [GET POST]]
             [webhookproxyweb.model :as model]
-            [webhookproxyweb.components.add-edit-form :as add-edit-form]
             [webhookproxyweb.components.listing :as listing]
+            [webhookproxyweb.components.add-edit-form :as add-edit-form]
+            [webhookproxyweb.components.whitelist-editor :as whitelist-editor]
+            [webhookproxyweb.forms :as forms]
             [reagent.core :as reagent]
             [re-frame.core :refer [register-handler
                                    register-sub
@@ -13,6 +15,7 @@
                                    subscribe]]))
 
 (enable-console-print!)
+
 
 (defn fetch-webhooks [db _]
   (GET "/api/webhooks" {:response-format :json
@@ -46,12 +49,6 @@
 (register-handler :reset-webhooks  reset-webhooks)
 (register-handler :reset-identity  reset-identity)
 
-(register-handler :submitted add-edit-form/submitted)
-(register-handler :validated add-edit-form/validated)
-(register-handler :confirmed add-edit-form/confirmed)
-(register-handler :sync-errored add-edit-form/sync-errored)
-(register-handler :rejected add-edit-form/rejected)
-
 
 (register-handler :log-out (fn [db [_ payload]]
                              (POST "/logout" {:format :json
@@ -61,12 +58,29 @@
 
 (register-sub :form-valid (fn [db _] (reaction [(:valid? @db) (:errors @db)])))
 (register-sub :items-changed (fn [db _] (reaction (:items @db))))
-(register-sub :screen-changed (fn [db _] (reaction (or (:active-screen @db) [:listing]))))
+
+(register-sub :screen-changed (fn [db [_ & filters]]
+                                (reaction
+                                   (let [active-screen (:active-screen @db)
+                                         interested-in 
+                                         (reduce 
+                                           #(when (= (first %1) %2) (rest %1))
+                                         (or (:active-screen @db) [:listing])
+                                         filters
+                                         )]
+                                     interested-in))))
+
 (register-sub :logged-in (fn [db _] (reaction (:logged-in-user @db))))
 (register-sub :forms (fn [db [_ form-id & args]] (reaction (-> @db :forms form-id))))
 
+(register-sub :whitelists (fn [db [_ webhook-id]]
+                            (reaction 
+                              (or 
+                                (:whitelist (first (filter #(= (:id %) webhook-id) (:items @db)))) 
+                                []))))
+
 (defn change-screen [db sargs]
-  (println sargs)
+  (println "AS: " (rest sargs))
   (assoc db :active-screen (rest sargs)))
 
 (register-handler :change-screen change-screen)
@@ -84,7 +98,12 @@
           [:div 
            [:h1 "Webhookproxy"] 
            [:button {:on-click #(dispatch [:log-out]) } "Logout"]
+           [:button  {:on-click #(dispatch [:change-screen :whitelists :listing]) } "Show whitelists"]
            (case active-screen
+             :whitelists
+             [:div
+              [whitelist-editor/root-component]
+              ]
              :add-form
              [:div
               [:button  {:on-click #(dispatch [:change-screen :listing]) } "Show listing"]
@@ -108,6 +127,7 @@
 
 (defn ^:export run
   []
+  (forms/init)
   (dispatch [:fetch-identity])
   (rootrender))
 
