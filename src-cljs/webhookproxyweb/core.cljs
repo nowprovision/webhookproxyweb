@@ -8,6 +8,8 @@
             [webhookproxyweb.components.webhook-editor :as webhook-editor]
             [webhookproxyweb.components.whitelist-editor :as whitelist-editor]
             [webhookproxyweb.forms :as forms]
+            [webhookproxyweb.sync :as sync]
+            [webhookproxyweb.auth :as auth]
             [reagent.core :as reagent]
             [re-frame.db]
             [re-frame.core :refer [register-handler 
@@ -19,45 +21,12 @@
 
 (enable-console-print!)
 
-                                                    
+(register-handler :fetch-webhooks sync/fetch-webhooks)
+(register-handler :fetch-identity auth/fetch-identity)
+(register-handler :reset-webhooks sync/reset-webhooks)
+(register-handler :reset-identity auth/reset-identity)
+(register-handler :start-auth-flow auth/start-auth-flow)
 
-(defn fetch-webhooks [db _]
-  (GET "/api/webhooks" {:response-format :json
-                        :keywords? true 
-                        :handler (fn [webhooks] 
-                                   (dispatch [:reset-webhooks webhooks]))
-                        :error-handler (fn [] nil)
-                        })
-  db) 
-
-(defn fetch-identity [db _]
-  (GET "/whoami" {:response-format :json
-                  :keywords? true 
-                  :handler (fn [user]
-                             (when (:authenticated? user)
-                               (dispatch [:reset-identity user])
-                               ))
-                  :error-handler (fn [] nil)
-                  })
-  db) 
-
-(defn reset-webhooks [db [_ payload]]
-  (assoc db :items payload))
-
-(defn reset-identity [db [_ payload]]
-  (assoc db :logged-in-user payload))
-
-(register-handler :fetch-webhooks fetch-webhooks)
-(register-handler :fetch-identity  fetch-identity)
-(register-handler :reset-webhooks  reset-webhooks)
-(register-handler :reset-identity  reset-identity)
-
-
-(register-handler :log-out (fn [db [_ payload]]
-                             (POST "/logout" {:format :json
-                                              :params {}
-                                              :response-format :json})
-                               (dissoc db :active-user)))
 
 (register-sub :form-valid (fn [db _] (reaction [(:valid? @db) (:errors @db)])))
 
@@ -72,27 +41,14 @@
                                          )]
                                      interested-in))))
 
-(register-sub :logged-in (fn [db _] (reaction (:logged-in-user @db))))
 (register-sub :forms (fn [db [_ form-id & args]] (reaction (-> @db :forms form-id))))
 
 
 (defn change-screen [db path ]
-  (let [path-components (rest path)
-        resolved-path-components (vec (map (fn [p]
-                                        (cond 
-                                          (fn? p)
-                                          (p db)
-                                          (vector? p)
-                                          (get-in db p)
-                                          :else
-                                          p)) path-components))]
-  (assoc db :active-screen resolved-path-components)))
+  (let [path-components (rest path)]
+    (assoc db :active-screen path-components)))
 
 (register-handler :change-screen change-screen)
-
-(def github-login-url (str "https://github.com/login/oauth/authorize?"
-                           "scope=user:email&client_id=" (from-config [:github-auth :client-id])))
-
 
 (defn root-template [] 
   (let [logged-in (subscribe [:logged-in])
@@ -116,8 +72,7 @@
               )
             ])
          [:div 
-          [:h1 "Please Login"]
-          [:a { :target "_new" :href github-login-url } "Auth to github"]]
+          [:h1 "Logging you in..."]]
          )])))
 
 (defn ^:export rootrender [& args] 
@@ -129,9 +84,7 @@
 (defn ^:export run
   []
   (forms/init)
-  (dispatch-sync [:fetch-identity])
-  (dispatch-sync [:fetch-webhooks])
-  (println "COUNT: " (count (:items @re-frame.db/app-db)))
+  (dispatch [:fetch-identity])
   (routing/dispatch! (-> js/window .-location .-pathname))
   (rootrender))
 

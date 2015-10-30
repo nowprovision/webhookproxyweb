@@ -28,7 +28,9 @@
      ;; register handlers
      :webhook-handlers (component/using (map->WebHookHandlers {}) [:webhooks])
      :users-handlers (component/using (map->UserHandlers {}) [:users])
-     :static-handlers (map->StaticHandlers { :root-path (-> config :static :root-path) })
+     :static-handlers (component/using
+                        (map->StaticHandlers { :root-path (-> config :static :root-path) })
+                        [:users])
      ;; middleware placeholder
      :extra-middleware []
      ;; pass handlers to web-app
