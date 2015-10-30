@@ -21,6 +21,7 @@
 (defn with-github-code-check [users root-path req]
   (if-let [code (-> req :params :code)]
     (let [uid (users/github-enrollment-and-identify users code)]
+      ;; redirect without query params so ?code= querystring is not bookmarked
       {:status 302 
        ;:headers (with-no-cache { "Location" (:uri req) })
        :headers { "Location" (:uri req) } ; 90% sure no cache no req if query code is unique

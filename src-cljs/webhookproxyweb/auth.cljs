@@ -19,7 +19,9 @@
 (defn fetch-identity [db _]
   (->> { :handler (fn [user]
                     (if (:authenticated? user)
-                      (dispatch [:reset-identity user])
+                      (do
+                        (dispatch [:reset-identity user])
+                        (dispatch [:fetch-webhooks]))
                       (dispatch [:start-auth-flow])
                       ))
         :error-handler (fn [] nil) }
