@@ -1,25 +1,61 @@
 (ns webhookproxyweb.components.whitelist-editor
-  (:require [re-frame.core :refer [dispatch subscribe]]
+  (:require-macros [reagent.ratom :refer [reaction]]  
+                   [secretary.core :refer [defroute]])
+  (:require [re-frame.core :refer [dispatch 
+                                   subscribe
+                                   register-sub]]
             [schema.core :as s]
-            [ajax.core :refer [POST]]
             [cljs-uuid-utils.core :as uuid]
             [reagent.core :as reagent :refer [atom]]
             [reagent-forms.core :refer [bind-fields]]
-            [webhookproxyweb.model :as model]))
+            [webhookproxyweb.components.shared :refer [form-input]]
+            [webhookproxyweb.model :as model]
+            [webhookproxyweb.routing :as routing]))
 
 (declare listing-component update-add-component)
 
+(register-sub :whitelists (fn [db [_ webhook-id & args]]
+                            (reaction 
+                              (let [whitelist-id (first args)
+                                    whitelists (or (:whitelist 
+                                                     (first 
+                                                       (filter #(= (:id %) webhook-id) (:items @db)))) [])]
+                                (if whitelist-id 
+                                  (first (filter #(= (:id %) whitelist-id) whitelists))
+                                  whitelists
+                                  )))))
+
+(defroute "/webhooks/:webhook-id/whitelists" [webhook-id] 
+  (dispatch [:change-screen :whitelists :listing webhook-id]))
+
+(defroute "/tasks/:webhook-id/new-whitelist" [webhook-id] 
+  (dispatch [:change-screen :whitelists :update-add webhook-id]))
+
+(defroute "/webhooks/:webhook-id/whitelists/:whitelist-id" [webhook-id whitelist-id] 
+  (dispatch [:change-screen :whitelists :update-add webhook-id whitelist-id]))
+
 (defn root-component [item]
-  (let [screen-atom (subscribe [:screen-changed :whitelists])]
+  (let [screen-atom (subscribe [:screen-changed :whitelists])
+        webhook-sub (subscribe [:webhooks])]
     (fn [item] 
-      (println "re-rendering")
-      (let [[active-screen & screen-args] @screen-atom]
-        (println "Screen args" screen-args)
-        (case active-screen
-          :listing
-          (apply conj [listing-component] screen-args)
-          :update-add
-          (apply conj [update-add-component] screen-args))))))
+      (if @webhook-sub
+        (let [[active-screen & screen-args] @screen-atom]
+          (case active-screen
+            :listing
+            [:div
+             [:table
+              [:tr
+               [:td
+                [:button { :on-click #(routing/transition! "/") }
+                 "Show All Webhooks"]]
+               [:td
+                [:button { :on-click #(routing/transition! (str "/webhooks/" (first screen-args))) }
+                 "Edit Webhook"]]] ]
+             (apply conj [listing-component] screen-args)]
+            :update-add
+            (apply conj [update-add-component] screen-args)))
+        [:div "Loading"] 
+        ))))
 
 
 (defn listing-component [webhook-id]
@@ -27,33 +63,41 @@
     (fn []
       [:div
        [:h2 "IP Filters"]
-       [:button {:on-click #(dispatch [:change-screen 
-                                       :whitelists 
-                                       :update-add
-                                       webhook-id]) } "Add IP Filter"]
+       [:button {:on-click #(routing/transition! (str "/tasks/"
+                                                      webhook-id
+                                                      "/new-whitelist")) } "Add IP Filter"]
        (when (zero? (:count @whitelists))
          [:p "There are currently no filters defined which is sad."])
-       [:ul
-        (for [{:keys [-scheme:chrome-extensionid description] :as whitelist} @whitelists]
-          ^{:key id} [:li 
-                      [:p.description description]
-                      [:button {:on-click #(dispatch [:edit-whitelist id]) } "Edit"] ]) ]])))
+       [:table
+        [:thead
+         [:th "Description"]
+         [:th "IP"]
+         [:th ""]]
+        (for [{:keys [id ip description] :as whitelist} @whitelists]
+          ^{:key id} [:tr 
+                      [:td description]
+                      [:td ip]
+                      [:td 
+                      [:button {:on-click #(routing/transition! 
+                                             (str "/webhooks/"
+                                                  webhook-id
+                                                  "/whitelists/"
+                                                  id)) } "Edit"] ]
+                      ]) ]])))
 
-(defn form-input [label input-attrs]
-  [:div
-   [:label label]
-   [:input.form-control input-attrs]])
-
-(defn update-add-component [webhook-id]
+(defn update-add-component [webhook-id whitelist-id]
   (let [form-id (keyword (str (uuid/make-random-uuid)))
         sync-path (str "/api/webhooks/" webhook-id "/whitelists")
         form-sub (subscribe [:forms form-id])
-        is-new (if item false true)
-        staging (atom (or item {:id  (str (uuid/make-random-uuid))
-                                :description "" :ip ""}))]
+        is-new (if whitelist-id false true)
+        whitelist-sub (subscribe [:whitelists webhook-id whitelist-id])
+        staging (atom (if is-new {:id  (str (uuid/make-random-uuid))
+                                  :description "" :ip ""}
+                        
+                        @whitelist-sub))]
     (fn [webhook-id] 
       [:div
-       [:p "Add whitelist"]
+       [:h2 "Add allowed IP or IP range"]
        (when (false? (:valid? @form-sub))
          [:div
           [:p "There were problems with your submission."]
@@ -61,17 +105,21 @@
            (for [verror (:errors @form-sub)]
              [:li  (:error verror)])]])
        [bind-fields 
-        [:div
-         (form-input "Description" { :field :text :id :description })
-         (form-input "IP or IP maskk" { :field :text :id :ip })
+        [:table
+         (form-input "Description" { :field :text :id :description :placeholder "Branch office VPN gateway" })
+         (form-input "IP or IP mask" { :field :text :id :ip :placeholder "123.123.123.123/24" })
          ] staging] 
+       [:br]
        [:button {:on-click #(dispatch [:submitted {:data @staging 
+                                                   :done-path (str "/webhooks/"
+                                                                   webhook-id
+                                                                   "/whitelists")
                                                    :is-new is-new 
                                                    :form-id form-id 
                                                    :schema model/WhitelistEntry
                                                    :sync-path sync-path
                                                    }]) } 
-        (if is-new "Add" "Update")]]
+        (if is-new "Add Filter" "Update Filter")]]
       )))
 
 

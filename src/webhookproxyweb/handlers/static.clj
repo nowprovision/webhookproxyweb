@@ -20,6 +20,6 @@
   (with-security [:open]
     (GET "/whoami" req { :body (or (-> req :session) {} ) })
     (GET "/loggedin" req (with-headers (io/file root-path "loggedin.html")))
-    (GET "/" req (with-headers (io/file root-path "index.html")))))
+    (GET "*" req (with-headers (io/file root-path "index.html")))))
 
 

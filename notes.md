@@ -4,8 +4,9 @@ In network pane use -scheme:chrome-extension to hide extensions
 
 ## Friday 30th onwards todo
 
- - Indirect :change-screen to use html5 history api via secretary
- -https://github.com/gf3/secretary
+ - Fix routing, dont build paths via strings, use route builders
+
+-  Fix duplication susbcriptions, can be passed down?
 
  - Move schema to cljx and validate on both server and client
  

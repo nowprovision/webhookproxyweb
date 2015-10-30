@@ -9,6 +9,8 @@
 (def WhitelistEntry 
   { :id not-blank
     :description not-blank
+    (s/optional-key :userid) s/Str
+    (s/optional-key :webhookid) s/Str
     :ip not-blank })
 
 (def WebHookProxyEntry 
@@ -18,7 +20,7 @@
    (s/optional-key :active) s/Bool
    (s/optional-key :deleted) s/Bool
    (s/optional-key :userid) s/Str
-   (s/optional-key :whitelists) [WhitelistEntry]
+   (s/optional-key :whitelist) [WhitelistEntry]
    :subdomain not-blank
    :description not-blank })
 

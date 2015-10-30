@@ -39,6 +39,6 @@
         webhook-id (-> req :params :id)
         is-new (-> req :body :is-new)
         payload (-> req :body :data)
-        db-fn webhooks/add-whitelist
+        db-fn (if is-new webhooks/add-whitelist webhooks/update-whitelist)
         op-result (db-fn webhooks user-id webhook-id payload)]
     { :body (webhooks/get-webhook webhooks user-id webhook-id) }))

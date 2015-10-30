@@ -1,21 +1,25 @@
 (ns webhookproxyweb.core
   (:require-macros [reagent.ratom :refer [reaction]]  
-                   [webhookproxyweb.config :refer [from-config]])
+                   [webhookproxyweb.config :refer [from-config]]
+                   [secretary.core :refer [defroute]])
   (:require [cljs-uuid-utils.core :as uuid]
             [ajax.core :refer [GET POST]]
             [webhookproxyweb.model :as model]
-            [webhookproxyweb.components.listing :as listing]
-            [webhookproxyweb.components.add-edit-form :as add-edit-form]
+            [webhookproxyweb.components.webhook-editor :as webhook-editor]
             [webhookproxyweb.components.whitelist-editor :as whitelist-editor]
             [webhookproxyweb.forms :as forms]
             [reagent.core :as reagent]
-            [re-frame.core :refer [register-handler
-                                   register-sub
-                                   dispatch
-                                   subscribe]]))
+            [re-frame.db]
+            [re-frame.core :refer [register-handler 
+                                   register-sub 
+                                   dispatch 
+                                   dispatch-sync
+                                   subscribe]]
+            [webhookproxyweb.routing :as routing]))
 
 (enable-console-print!)
 
+                                                    
 
 (defn fetch-webhooks [db _]
   (GET "/api/webhooks" {:response-format :json
@@ -28,14 +32,13 @@
 
 (defn fetch-identity [db _]
   (GET "/whoami" {:response-format :json
-                        :keywords? true 
-                        :handler (fn [user]
-                                   (when (:authenticated? user)
-                                     (dispatch [:reset-identity user])
-                                     (dispatch [:fetch-webhooks])
-                                     ))
-                        :error-handler (fn [] nil)
-                        })
+                  :keywords? true 
+                  :handler (fn [user]
+                             (when (:authenticated? user)
+                               (dispatch [:reset-identity user])
+                               ))
+                  :error-handler (fn [] nil)
+                  })
   db) 
 
 (defn reset-webhooks [db [_ payload]]
@@ -57,7 +60,6 @@
                                (dissoc db :active-user)))
 
 (register-sub :form-valid (fn [db _] (reaction [(:valid? @db) (:errors @db)])))
-(register-sub :items-changed (fn [db _] (reaction (:items @db))))
 
 (register-sub :screen-changed (fn [db [_ & filters]]
                                 (reaction
@@ -73,15 +75,18 @@
 (register-sub :logged-in (fn [db _] (reaction (:logged-in-user @db))))
 (register-sub :forms (fn [db [_ form-id & args]] (reaction (-> @db :forms form-id))))
 
-(register-sub :whitelists (fn [db [_ webhook-id]]
-                            (reaction 
-                              (or 
-                                (:whitelist (first (filter #(= (:id %) webhook-id) (:items @db)))) 
-                                []))))
 
-(defn change-screen [db sargs]
-  (println "AS: " (rest sargs))
-  (assoc db :active-screen (rest sargs)))
+(defn change-screen [db path ]
+  (let [path-components (rest path)
+        resolved-path-components (vec (map (fn [p]
+                                        (cond 
+                                          (fn? p)
+                                          (p db)
+                                          (vector? p)
+                                          (get-in db p)
+                                          :else
+                                          p)) path-components))]
+  (assoc db :active-screen resolved-path-components)))
 
 (register-handler :change-screen change-screen)
 
@@ -93,31 +98,27 @@
   (let [logged-in (subscribe [:logged-in])
         screen-atom (subscribe [:screen-changed])]
     (fn []
-      (if @logged-in
-        (let [[active-screen & screen-args] @screen-atom]
-          [:div 
-           [:h1 "Webhookproxy"] 
-           [:button {:on-click #(dispatch [:log-out]) } "Logout"]
-           [:button  {:on-click #(dispatch [:change-screen :whitelists :listing]) } "Show whitelists"]
-           (case active-screen
-             :whitelists
-             [:div
-              [whitelist-editor/root-component]
-              ]
-             :add-form
-             [:div
-              [:button  {:on-click #(dispatch [:change-screen :listing]) } "Show listing"]
-              (apply conj [add-edit-form/component] screen-args)]
-             :listing
-             [:div
-              [:button  {:on-click #(dispatch [:change-screen :add-form]) } "Show add form"]
-              [listing/component]]
-             )
-           ])
-        [:div 
-         [:h1 "Please Login"]
-         [:a { :target "_new" :href github-login-url } "Auth to github"]]
-        ))))
+      [:div
+       (if @logged-in
+         (let [[active-screen & screen-args] @screen-atom]
+           [:div 
+            [:h1 "Webhookproxy"] 
+            (case active-screen
+              :whitelists
+              [:div
+               [whitelist-editor/root-component]
+               ]
+              :webhooks
+              [:div
+               [webhook-editor/root-component]
+               ]
+              [:div] 
+              )
+            ])
+         [:div 
+          [:h1 "Please Login"]
+          [:a { :target "_new" :href github-login-url } "Auth to github"]]
+         )])))
 
 (defn ^:export rootrender [& args] 
   (reagent/render [root-template] (js/document.getElementById "app")))
@@ -128,6 +129,9 @@
 (defn ^:export run
   []
   (forms/init)
-  (dispatch [:fetch-identity])
+  (dispatch-sync [:fetch-identity])
+  (dispatch-sync [:fetch-webhooks])
+  (println "COUNT: " (count (:items @re-frame.db/app-db)))
+  (routing/dispatch! (-> js/window .-location .-pathname))
   (rootrender))
 

@@ -6,6 +6,7 @@
             [reagent.core :as reagent :refer [atom]]
             [reagent-forms.core :refer [bind-fields]]
             [webhookproxyweb.model :as model]
+            [webhookproxyweb.routing :as routing]
             [re-frame.core :refer [register-handler
                                    register-sub
                                    dispatch
@@ -33,9 +34,9 @@
         (assoc-in (conj form-path :valid?) false)
         (assoc-in (conj form-path :errors) (map model/error->friendly errors)))))
 
-(defn sync-to-server [db [_ {:keys [form-id sync-path] :as payload }]]
+(defn sync-to-server [db [_ {:keys [form-id sync-path done-path] :as payload }]]
   (let [server-payload (select-keys payload [:data :is-new])
-        confirmed-handler (fn [server-resp] (dispatch [:sync-confirmed form-id server-resp]))
+        confirmed-handler (fn [server-resp] (dispatch [:sync-confirmed form-id server-resp done-path]))
         err-handler (fn [error] (dispatch [:sync-errored form-id (:response error)]))]
     (->> {:format :json 
           :params server-payload  
@@ -50,15 +51,15 @@
   (let [form-path [:forms form-id]]
     (-> db
         (assoc-in (conj form-path :valid?) false)
-        (assoc-in (conj form-path :errors) [(if (:errors error) error 
+        (assoc-in (conj form-path :errors) [(if (:error error) error 
                                               { :error "Unexpected server error" })]))))
 
 
 (defn- upsert [coll item]
   (conj (filter #(not= (:id %) (:id item)) coll) item))
 
-(defn merge-sync-payload [db [_ form-id payload]]
+(defn merge-sync-payload [db [_ form-id payload done-path]]
   (let [items (:items db)]
-    (-> db
-      (assoc :items (upsert items payload))
-      (assoc :active-screen [:listing]))))
+    (routing/transition! done-path)
+    (assoc db :items (upsert items payload))
+    ))

@@ -1,0 +1,35 @@
+body, html {
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+
+body {
+  font: 13px/1.231 arial, helvetica, clean, sans-serif;
+  background: #fff;
+  *font-size: small;
+  *font: x-small;
+}
+
+* {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+table {
+  border: 1px solid #c0c0c0;
+  border-spacing: 0px;
+  border-collapse: collapse;
+}
+table td, table th {
+  border: 1px solid #c0c0c0;
+  padding: 4px;
+}
+
+table th {
+  text-align: left;
+}
+
+input.form-control {
+  width: 220px;
+}
