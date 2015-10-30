@@ -3,7 +3,9 @@
                    [webhookproxyweb.config :refer [from-config]]
                    [secretary.core :refer [defroute]])
   (:require [ajax.core :refer [GET POST]]
-            [re-frame.core :refer [dispatch]]))
+            [re-frame.core :refer [dispatch register-sub]]))
+
+(register-sub :logged-in (fn [db _] (reaction (:logged-in-user @db))))
 
 (defn json-get [url opts]
   (GET url (merge {:response-format :json :keywords? true  } opts)))

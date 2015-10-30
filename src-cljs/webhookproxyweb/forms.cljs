@@ -1,4 +1,5 @@
 (ns webhookproxyweb.forms
+  (:require-macros [reagent.ratom :refer [reaction]]) 
   (:require [re-frame.core :refer [dispatch subscribe]]
             [schema.core :as s]
             [ajax.core :refer [POST]]
@@ -15,6 +16,8 @@
 (declare validate sync-to-server add-validation-errors merge-sync-payload add-sync-errors)
 
 (defn init []
+  (register-sub :forms (fn [db [_ form-id & args]]
+                         (reaction (-> @db :forms form-id))))
   (register-handler :submitted validate) ; when submit validate
   (register-handler :validated sync-to-server) ; once validated send to server
   (register-handler :rejected add-validation-errors) ; handle validation rejection

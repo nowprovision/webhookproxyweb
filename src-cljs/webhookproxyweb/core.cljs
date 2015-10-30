@@ -28,8 +28,6 @@
 (register-handler :start-auth-flow auth/start-auth-flow)
 
 
-(register-sub :form-valid (fn [db _] (reaction [(:valid? @db) (:errors @db)])))
-
 (register-sub :screen-changed (fn [db [_ & filters]]
                                 (reaction
                                    (let [active-screen (:active-screen @db)
@@ -40,10 +38,6 @@
                                          filters
                                          )]
                                      interested-in))))
-
-(register-sub :forms (fn [db [_ form-id & args]] (reaction (-> @db :forms form-id))))
-
-
 (defn change-screen [db path ]
   (let [path-components (rest path)]
     (assoc db :active-screen path-components)))
