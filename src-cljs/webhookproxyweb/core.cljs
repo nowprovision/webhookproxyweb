@@ -9,6 +9,7 @@
             [webhookproxyweb.components.whitelist-editor :as whitelist-editor]
             [webhookproxyweb.forms :as forms]
             [webhookproxyweb.sync :as sync]
+            [webhookproxyweb.screens :as screens]
             [webhookproxyweb.auth :as auth]
             [reagent.core :as reagent]
             [re-frame.db]
@@ -28,29 +29,13 @@
 (register-handler :start-auth-flow auth/start-auth-flow)
 
 
-(register-sub :screen-changed (fn [db [_ & filters]]
-                                (reaction
-                                   (let [active-screen (:active-screen @db)
-                                         interested-in 
-                                         (reduce 
-                                           #(when (= (first %1) %2) (rest %1))
-                                         (or (:active-screen @db) [:listing])
-                                         filters
-                                         )]
-                                     interested-in))))
-(defn change-screen [db path ]
-  (let [path-components (rest path)]
-    (assoc db :active-screen path-components)))
-
-(register-handler :change-screen change-screen)
-
 (defn root-template [] 
   (let [logged-in (subscribe [:logged-in])
         screen-atom (subscribe [:screen-changed])]
     (fn []
       [:div
        (if @logged-in
-         (let [[active-screen & screen-args] @screen-atom]
+         (let [[active-screen & screen-args] (or @screen-atom :default)]
            [:div 
             [:h1 "Webhookproxy"] 
             (case active-screen
@@ -63,6 +48,8 @@
                [webhook-editor/root-component]
                ]
               [:div] 
+              :default 
+              [:div]
               )
             ])
          [:div 
