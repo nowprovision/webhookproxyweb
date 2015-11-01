@@ -72,9 +72,6 @@
 (defn ^:export rootrender [& args] 
   (reagent/render [root-template] (js/document.getElementById "app")))
 
-(defn ^:export login [& args]
-  (dispatch [:fetch-identity]))
-
 (defn ^:export run []
   (forms/init)
   (dispatch [:fetch-identity])
