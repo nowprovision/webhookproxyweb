@@ -17,9 +17,8 @@
 
 (register-sub :screen-changed screen-changed)
 
-(defn change-screen [db path ]
-  (let [path-components (rest path)]
-    (assoc db :active-screen path-components)))
+(defn change-screen [db [_ & path]]
+  (assoc db :active-screen path))
 
 (register-handler :change-screen change-screen)
 
