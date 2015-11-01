@@ -6,24 +6,22 @@
 
 (defonce history (Html5History.))
 
-(defn on-popstate [e]
-  (-> e .-token secretary/dispatch!))
-
-(doto history 
+; export on whp.routing.history for debugging
+(doto ^:export history 
   (.setEnabled true)
   (.setPathPrefix "")
   (.setUseFragment false))
 
+(defn on-popstate [e]
+  (-> e .-token secretary/dispatch!))
+
 (events/listen history EventType/NAVIGATE on-popstate)
 
 (defn transition! [path]
-  (println (str "Trans navigating to:" path))
   (.setToken history path))
 
-(defn dispatch! [path]
-  (println (str "Dispatch navigating to:" path))
-  (secretary/dispatch! path))
-
-
-
+(defn force-transition! [path]
+  (if (= (.getToken history) path)
+    (secretary/dispatch! path)
+    (.setToken history path)))
 

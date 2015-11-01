@@ -75,10 +75,10 @@
 (defn ^:export login [& args]
   (dispatch [:fetch-identity]))
 
-(defn ^:export run
-  []
+(defn ^:export run []
   (forms/init)
   (dispatch [:fetch-identity])
-  (routing/dispatch! (-> js/window .-location .-pathname))
+  ; force the initial client side routing transitiion from page load
+  (routing/force-transition! (-> js/window .-location .-pathname))
   (rootrender))
 
