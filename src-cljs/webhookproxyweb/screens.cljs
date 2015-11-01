@@ -1,9 +1,10 @@
 (ns webhookproxyweb.screens
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.db :refer [app-db]]
-            [re-frame.core :refer [register-sub register-handler]]))
+  (:require [re-frame.core :refer [register-sub 
+                                   subscribe
+                                   register-handler]]))
 
-(def active-screen (reaction (-> app-db deref :active-screen)))
+(register-sub :active-screen-changed (fn [db _] (reaction (:active-screen @db))))
 
 (defn screen-changed 
   "when filters is [:webhooks] - e.g. (subscribe [:screen-changed :webhooks])
@@ -11,7 +12,8 @@
   return a new reaction producing only [:bar :foo]"
   [db [_ & filters]]
   (reaction 
-    (let [filter-len (count filters)]
+    (let [active-screen (subscribe [:active-screen-changed])
+          filter-len (count filters)]
       (when (= (seq (take filter-len @active-screen)) filters)
         (drop filter-len @active-screen)))))
 
