@@ -4,10 +4,10 @@
             [goog.history.EventType :as EventType])
   (:import goog.history.Html5History))
 
-(defonce history (Html5History.))
+(defonce ^:export history (Html5History.))
 
 ; export on whp.routing.history for debugging
-(doto ^:export history 
+(doto history 
   (.setEnabled true)
   (.setPathPrefix "")
   (.setUseFragment false))
