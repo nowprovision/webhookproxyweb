@@ -79,7 +79,7 @@
 
 (defn update-add-component [webhook-id]
   (let [form-id (keyword (str (uuid/make-random-uuid)))
-        form-sub (subscribe [:forms form-id])
+        form-sub (subscribe [:form-changed form-id])
         is-new (if webhook-id false true)
         webhook-sub (subscribe [:webhooks webhook-id])
         staging (atom (if is-new {:id (str (uuid/make-random-uuid)) 

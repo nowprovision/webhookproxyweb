@@ -15,14 +15,12 @@
 
 (declare validate sync-to-server add-validation-errors merge-sync-payload add-sync-errors)
 
-(defn init []
-  (register-sub :forms (fn [db [_ form-id & args]]
-                         (reaction (-> @db :forms form-id))))
-  (register-handler :submitted validate) ; when submit validate
-  (register-handler :validated sync-to-server) ; once validated send to server
-  (register-handler :rejected add-validation-errors) ; handle validation rejection
-  (register-handler :sync-confirmed merge-sync-payload); once sync confirmed merge into ratom
-  (register-handler :sync-errored add-sync-errors)) ; handle sync errors
+(register-sub :forms-changed (fn [db _] (reaction (:forms @db))))
+
+(register-sub :form-changed (fn [db [_ form-id]]
+                              (let [forms (subscribe [:forms-changed])]
+                                (reaction (get @forms form-id)))))
+
 
 
 (defn validate [db [_ { :keys [data schema form-id] :as payload}]]
@@ -66,3 +64,9 @@
     (routing/transition! done-path)
     (assoc db :items (upsert items payload))
     ))
+
+(register-handler :submitted validate) ; when submit validate
+(register-handler :validated sync-to-server) ; once validated send to server
+(register-handler :rejected add-validation-errors) ; handle validation rejection
+(register-handler :sync-confirmed merge-sync-payload); once sync confirmed merge into ratom
+(register-handler :sync-errored add-sync-errors) ; handle sync errors

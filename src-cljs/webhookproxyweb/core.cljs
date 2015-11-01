@@ -60,7 +60,6 @@
   (reagent/render [root-template] (js/document.getElementById "app")))
 
 (defn ^:export run []
-  (forms/init)
   (dispatch [:fetch-identity])
   ; force the initial client side routing transitiion from page load
   (routing/force-transition! (-> js/window .-location .-pathname))

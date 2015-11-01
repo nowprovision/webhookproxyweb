@@ -88,7 +88,7 @@
 (defn update-add-component [webhook-id whitelist-id]
   (let [form-id (keyword (str (uuid/make-random-uuid)))
         sync-path (str "/api/webhooks/" webhook-id "/whitelists")
-        form-sub (subscribe [:forms form-id])
+        form-sub (subscribe [:form-changed form-id])
         is-new (if whitelist-id false true)
         whitelist-sub (subscribe [:whitelists webhook-id whitelist-id])
         staging (atom (if is-new {:id  (str (uuid/make-random-uuid))
