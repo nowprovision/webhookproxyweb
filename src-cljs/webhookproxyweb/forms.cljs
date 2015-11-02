@@ -61,7 +61,8 @@
 
 (defn merge-sync-payload [db [_ form-id payload done-path]]
   (let [items (:items db)]
-    (routing/transition! done-path)
+    (when done-path
+      (dispatch [:redirect done-path]))
     (assoc db :items (upsert items payload))
     ))
 
