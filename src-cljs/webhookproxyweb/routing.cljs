@@ -1,7 +1,8 @@
 (ns webhookproxyweb.routing
   (:require [secretary.core :as secretary]
             [goog.events :as events]
-            [goog.history.EventType :as EventType])
+            [goog.history.EventType :as EventType]
+            [re-frame.core :refer [register-handler]])
   (:import goog.history.Html5History))
 
 (defonce ^:export history (Html5History.))
@@ -25,3 +26,7 @@
     (secretary/dispatch! path)
     (.setToken history path)))
 
+(register-handler :redirect (fn [db [_ uri]]
+                              (transition! uri)
+                              db))
+                              

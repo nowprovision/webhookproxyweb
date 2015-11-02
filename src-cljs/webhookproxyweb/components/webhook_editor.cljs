@@ -1,6 +1,5 @@
 (ns webhookproxyweb.components.webhook-editor
-  (:require-macros [reagent.ratom :refer [reaction]]  
-                   [secretary.core :refer [defroute]])
+  (:require-macros [reagent.ratom :refer [reaction]])
   (:require [re-frame.core :refer [dispatch subscribe register-sub register-handler]]
             [cljs-uuid-utils.core :as uuid]
             [reagent.core :as reagent :refer [atom]]
@@ -8,7 +7,7 @@
             [webhookproxyweb.model :as model]
             [webhookproxyweb.components.shared :refer [form-input 
                                                        mask-loading]]
-            [webhookproxyweb.routing :as routing]))
+            [webhookproxyweb.routes :as routes]))
 
 (declare listing-component update-add-component)
 
@@ -31,15 +30,6 @@
                                                      :sync-path "/api/webhooks"
                                                      :done-path "/" } payload)])))
 
-(defroute "/" [] 
-  (dispatch [:change-screen :webhooks :listing]))
-
-(defroute "/tasks/new-webhook" []
-  (dispatch [:change-screen :webhooks :update-add]))
-
-(defroute "/webhooks/:webhook-id" [webhook-id] 
-  (dispatch [:change-screen :webhooks :update-add webhook-id]))
-
 (defn root-component [item]
   (let [sub-screen (subscribe [:screen-changed :webhooks])
         webhooks-loaded (subscribe [:webhooks-loaded])]
@@ -52,13 +42,13 @@
                            :listing
                            [:div
                             [:div
-                               [:button {:on-click #(routing/transition! "/tasks/new-webhook")} "Add New Webhook"]]
+                               [:button {:on-click #(dispatch [:redirect (routes/add-webhook-path)]) } "Add New Webhook"]]
                             [:br]
                             (apply conj [listing-component] screen-args)]
                            :update-add
                            [:div
                             [:div
-                               [:button {:on-click #(routing/transition! "/")} "Show Webhooks"]]
+                               [:button {:on-click #(dispatch [:redirect (routes/list-webhooks-path)]) } "Show Webhooks"]]
                             (apply conj [update-add-component] screen-args)])]))
                     ))))
 
@@ -80,9 +70,14 @@
           [:td (:description item)]
           [:td (:subdomain item)]
           [:td 
-           [:button {:on-click #(routing/transition! (str "/webhooks/" (:id item)))} "Edit"]]
+           [:button {:on-click #(dispatch [:redirect 
+                                           (routes/edit-webhook-path 
+                                             {:webhook-id (:id item) })]) } 
+            "Edit"]]
           [:td
-           [:button {:on-click #(routing/transition! (str "/webhooks/" (:id item) "/whitelists")) } "Edit IP Filters"]]]
+           [:button {:on-click #(dispatch [:redirect 
+                                           (routes/list-whitelists-path { :webhook-id (:id item) })]) } 
+            "Edit IP Filters"]]]
           )]])))
 
 

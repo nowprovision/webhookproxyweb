@@ -25,18 +25,10 @@
                                   whitelists
                                   )))))
 
-(defroute "/webhooks/:webhook-id/whitelists" [webhook-id] 
-  (dispatch [:change-screen :whitelists :listing webhook-id]))
-
-(defroute "/tasks/:webhook-id/new-whitelist" [webhook-id] 
-  (dispatch [:change-screen :whitelists :update-add webhook-id]))
-
-(defroute "/webhooks/:webhook-id/whitelists/:whitelist-id" [webhook-id whitelist-id] 
-  (dispatch [:change-screen :whitelists :update-add webhook-id whitelist-id]))
 
 (defn root-component [item]
   (let [screen-atom (subscribe [:screen-changed :whitelists])
-        webhook-sub (subscribe [:webhooks])]
+        webhook-sub (subscribe [:webhooks-changed])]
     (fn [item] 
       (if @webhook-sub
         (let [[active-screen & screen-args] @screen-atom]

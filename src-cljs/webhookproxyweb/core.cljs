@@ -5,6 +5,7 @@
   (:require [cljs-uuid-utils.core :as uuid]
             [ajax.core :refer [GET POST]]
             [webhookproxyweb.model :as model]
+            [webhookproxyweb.routes :as routes]
             [webhookproxyweb.components.webhook-editor :as webhook-editor]
             [webhookproxyweb.components.whitelist-editor :as whitelist-editor]
             [webhookproxyweb.forms :as forms]
