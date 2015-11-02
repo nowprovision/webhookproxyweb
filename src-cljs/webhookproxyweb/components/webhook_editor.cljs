@@ -6,17 +6,24 @@
             [reagent.core :as reagent :refer [atom]]
             [reagent-forms.core :refer [bind-fields]]
             [webhookproxyweb.model :as model]
-            [webhookproxyweb.components.shared :refer [form-input]]
+            [webhookproxyweb.components.shared :refer [form-input 
+                                                       mask-loading]]
             [webhookproxyweb.routing :as routing]))
 
 (declare listing-component update-add-component)
 
-(register-sub :webhooks (fn [db [_ & args]]
-                            (reaction 
-                                (if-let [webhook-id (first args)]
-                                  (first (filter #(= (:id %) webhook-id) (:items @db))) 
-                                  (seq (sort-by :name (:items @db))))
-                               )))
+
+(register-sub :webhooks-changed (fn [db _] 
+                                  (reaction (:items @db))))
+
+(register-sub :webhook-changed (fn [db [_ webhook-id]]
+                                 (let [webhooks-changed (subscribe [:webhooks-changed])]
+                                   (reaction 
+                                     (first (filter #(= (:id %) webhook-id)  @webhooks-changed))))))
+
+(register-sub :webhooks-loaded (fn [db _]
+                                 (let [webhooks-changed (subscribe [:webhooks-changed])]
+                                   (reaction (not (nil? @webhooks-changed))))))
 
 (defroute "/" [] 
   (dispatch [:change-screen :webhooks :listing]))
@@ -28,33 +35,29 @@
   (dispatch [:change-screen :webhooks :update-add webhook-id]))
 
 (defn root-component [item]
-  (let [screen-atom (subscribe [:screen-changed :webhooks])
-        webhook-sub (subscribe [:webhooks])]
+  (let [sub-screen (subscribe [:screen-changed :webhooks])
+        webhooks-loaded (subscribe [:webhooks-loaded])]
     (fn [item] 
-      (if @webhook-sub
-        (let [[active-screen & screen-args] @screen-atom]
-          [:div
-           (case active-screen
-            :listing
-            [:div
-             [:table
-              [:tr
-               [:td
-                [:button {:on-click #(routing/transition! "/tasks/new-webhook")} "Add New Webhook"]]]]
-             [:br]
-             (apply conj [listing-component] screen-args)]
-            :update-add
-            [:div
-             [:table
-              [:tr
-               [:td
-                [:button {:on-click #(routing/transition! "/")} "Show Webhooks"]]]]
-             (apply conj [update-add-component] screen-args)])])
-        [:div "Loading"] 
-        ))))
+      (mask-loading webhooks-loaded 
+                    (fn [] 
+                      (let [[active-screen & screen-args] @sub-screen]
+                        [:div
+                         (case active-screen
+                           :listing
+                           [:div
+                            [:div
+                               [:button {:on-click #(routing/transition! "/tasks/new-webhook")} "Add New Webhook"]]
+                            [:br]
+                            (apply conj [listing-component] screen-args)]
+                           :update-add
+                           [:div
+                            [:div
+                               [:button {:on-click #(routing/transition! "/")} "Show Webhooks"]]
+                            (apply conj [update-add-component] screen-args)])]))
+                    ))))
 
 (defn listing-component []
-  (let [items (subscribe [:webhooks])]
+  (let [webhooks (subscribe [:webhooks-changed])]
     (fn [] 
       [:div
        [:table.listing
@@ -64,7 +67,7 @@
          [:th "Subomain"]
          [:th ""]
          [:th ""]]
-       (for [item @items]
+       (for [item (sort-by :name @webhooks)]
          ^{:key (:name item)} 
          [:tr 
           [:td (:name item)]
@@ -81,7 +84,7 @@
   (let [form-id (keyword (str (uuid/make-random-uuid)))
         form-sub (subscribe [:form-changed form-id])
         is-new (if webhook-id false true)
-        webhook-sub (subscribe [:webhooks webhook-id])
+        webhook-sub (subscribe [:webhook-changed webhook-id])
         staging (atom (if is-new {:id (str (uuid/make-random-uuid)) 
                                     :description ""
                                     :subdomain ""
@@ -110,9 +113,7 @@
          ] staging] 
        [:br]
        [:div
-        [:table
-         [:tr
-          [:td
+        [:div
            [:button {:on-click #(dispatch [:submitted 
                                            {:data @staging 
                                             :schema model/WebHookProxyEntry
@@ -120,6 +121,6 @@
                                             :done-path "/"
                                             :is-new is-new 
                                             :form-id form-id }]) } 
-            (if is-new "Add Webhook" "Update Webhoook")]]]]]]
+            (if is-new "Add Webhook" "Update Webhoook")]]]]
         )))
 
