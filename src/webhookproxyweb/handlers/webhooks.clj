@@ -19,7 +19,7 @@
   (with-security [:account-admin]
     (GET "/api/webhooks" req (list-webhooks webhooks req))
     (POST "/api/webhooks" req (add-edit-webhook webhooks req))
-    (POST "/api/webhooks/:id/whitelists" req (add-edit-whitelist webhooks req))))
+    (POST "/api/webhooks/:id/filters" req (add-edit-whitelist webhooks req))))
 
 (defn list-webhooks [webhooks req]
   (let [user-id (-> req :session :uid)

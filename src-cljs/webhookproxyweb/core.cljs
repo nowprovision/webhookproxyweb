@@ -6,8 +6,8 @@
             [ajax.core :refer [GET POST]]
             [webhookproxyweb.model :as model]
             [webhookproxyweb.routes :as routes]
-            [webhookproxyweb.components.webhook-editor :as webhook-editor]
-            [webhookproxyweb.components.whitelist-editor :as whitelist-editor]
+            [webhookproxyweb.components.webhook.view :as webhook-view]
+            [webhookproxyweb.components.filters.view :as filter-view]
             [webhookproxyweb.forms :as forms]
             [webhookproxyweb.sync :as sync]
             [webhookproxyweb.screens :as screens]
@@ -40,13 +40,13 @@
            [:div 
             [:h1 "Webhookproxy"] 
             (case active-screen
-              :whitelists
+              :filters
               [:div
-               [whitelist-editor/root-component]
+               [filter-view/root]
                ]
               :webhooks
               [:div
-               [webhook-editor/root-component]
+               [webhook-view/root]
                ]
               [:div] 
               :default 
