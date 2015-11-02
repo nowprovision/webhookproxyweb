@@ -1,7 +1,7 @@
 (ns webhookproxyweb.components.webhook-editor
   (:require-macros [reagent.ratom :refer [reaction]]  
                    [secretary.core :refer [defroute]])
-  (:require [re-frame.core :refer [dispatch subscribe register-sub]]
+  (:require [re-frame.core :refer [dispatch subscribe register-sub register-handler]]
             [cljs-uuid-utils.core :as uuid]
             [reagent.core :as reagent :refer [atom]]
             [reagent-forms.core :refer [bind-fields]]
@@ -24,6 +24,12 @@
 (register-sub :webhooks-loaded (fn [db _]
                                  (let [webhooks-changed (subscribe [:webhooks-changed])]
                                    (reaction (not (nil? @webhooks-changed))))))
+
+(register-handler :webhook-change-submitted
+                  (fn [db [_ payload]]
+                       (dispatch [:submitted (merge {:schema model/WebHookProxyEntry
+                                                     :sync-path "/api/webhooks"
+                                                     :done-path "/" } payload)])))
 
 (defroute "/" [] 
   (dispatch [:change-screen :webhooks :listing]))
@@ -114,13 +120,7 @@
        [:br]
        [:div
         [:div
-           [:button {:on-click #(dispatch [:submitted 
-                                           {:data @staging 
-                                            :schema model/WebHookProxyEntry
-                                            :sync-path "/api/webhooks"
-                                            :done-path "/"
-                                            :is-new is-new 
-                                            :form-id form-id }]) } 
+           [:button {:on-click #(dispatch [:webhook-change-submitted {:data @staging :is-new is-new :form-id form-id }]) } 
             (if is-new "Add Webhook" "Update Webhoook")]]]]
         )))
 
