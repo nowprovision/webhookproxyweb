@@ -8,13 +8,14 @@
   :cljsbuild {
               :repl-listen-port 9000
               :builds [{
-                        :source-paths ["src-cljs"]
+                        :source-paths ["src-cljs" "src-cljc"]
                         :figwheel { :on-jsload "webhookproxyweb.core/rootrender" }
                         :compiler {
                                    :output-dir "resources/public/js"  
                                    :output-to "resources/public/js/app/main.js"  
                                    :optimizations :none
                                    :pretty-print true}}]}
+  :source-paths ["src" "src-cljc"]
   :main webhookproxyweb.core
   :repl-options { :init-ns webhookproxyweb.repl }
   :dependencies [[org.clojure/clojure "1.7.0"]
