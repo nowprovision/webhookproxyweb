@@ -3,6 +3,7 @@
   (:require [com.stuartsierra.component :as component]
             [compojure.core :as compojure]
             [ring.middleware.defaults :refer [api-defaults wrap-defaults]]
+            [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
             [ring.middleware.file :refer [wrap-file]]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]))
 
@@ -34,6 +35,7 @@
                   (apply compojure/routes (or routes []))
                   (wrap-api-friendly-error)
                   (wrap-json-body {:bigdecimals? true :keywords? true })
+                  (wrap-anti-forgery)
                   (wrap-json-response)
                   (wrap-file "resources/public" { :index-files? false })
                   (wrap-defaults (assoc api-defaults :session true)))]

@@ -43,6 +43,7 @@
           :params server-payload  
           :response-format :json
           :keywords? true
+          :headers  { :X-XSRF-Token (-> db :logged-in-user :ring.middleware.anti-forgery/anti-forgery-token) }
           :handler confirmed-handler 
           :error-handler err-handler }
          (POST sync-path))

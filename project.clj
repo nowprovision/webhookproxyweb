@@ -35,6 +35,7 @@
                  [ring/ring-json "0.4.0"]
                  [ring/ring-defaults "0.1.5"]
                  [ring/ring-mock "0.3.0"]
+                 [ring/ring-anti-forgery "1.0.0"]
                  [http-kit "2.1.18"]
                  [org.clojure/java.jdbc "0.4.2"]
                  [org.postgresql/postgresql "9.3-1104-jdbc41"]
