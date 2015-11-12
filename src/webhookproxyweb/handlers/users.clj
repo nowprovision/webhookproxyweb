@@ -17,6 +17,7 @@
 
 (defn build-routes [users]
   (with-security [:open]
+    (POST "/logout" req { :body {} :session {} }) ;make it idempotic hence :open
     (GET "/callback" req (github-auth-callback users req))))
              
 (defn github-auth-callback [users req]
@@ -29,4 +30,5 @@
      :headers (with-no-cache { "Location" "/loggedin" } )
      :body "" }
     ))
+
 

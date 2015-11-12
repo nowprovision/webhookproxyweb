@@ -9,7 +9,7 @@
               :repl-listen-port 9000
               :builds [{
                         :source-paths ["src-cljs" "src-cljc"]
-                        :figwheel { :on-jsload "webhookproxyweb.core/rootrender" }
+                        :figwheel { :on-jsload "webhookproxyweb.core/root-render" }
                         :compiler {
                                    :output-dir "resources/public/js"  
                                    :output-to "resources/public/js/app/main.js"  

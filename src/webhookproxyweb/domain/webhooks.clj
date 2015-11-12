@@ -43,7 +43,6 @@
 
 (defn delete-webhook [{:keys [db]} user-id webhook-id]
   (with-db db
-    (println user-id ":" webhook-id)
     (let [_ (delete whitelist-entity
                     (where {:webhookid webhook-id 
                             :userid user-id }))
@@ -72,9 +71,9 @@
                 (set-fields payload))))
     (get-webhook webhooks user-id (:id payload))))
 
-(defn add-whitelist [{:keys [db] :as webhooks} user-id webhook-id payload]
-  {:pre [(nil? (schema/check schema/WhitelistEntry payload))] 
-   :post [(nil? (schema/check schema/WhitelistEntry %))] }
+(defn add-filter [{:keys [db] :as webhooks} user-id webhook-id payload]
+  {:pre [(nil? (schema/check schema/filter-schema payload))] 
+   :post [(nil? (schema/check schema/filter-schema %))] }
   (let [webhook-ids (map :id (list-webhooks webhooks user-id))
         correct-owner (boolean (some (set webhook-ids) [webhook-id]))]
     (if-not correct-owner
@@ -87,7 +86,7 @@
                                           :webhookid webhook-id
                                           }))))))))
 
-(defn update-whitelist [{:keys [db] :as webhooks} user-id webhook-id payload]
+(defn update-filter [{:keys [db] :as webhooks} user-id webhook-id payload]
   {:pre [(nil? (schema/check schema/WhitelistEntry payload))] }
   (let [webhook-ids (map :id (list-webhooks webhooks user-id))
         correct-owner (boolean (some (set webhook-ids) [webhook-id]))]
@@ -102,3 +101,24 @@
                           :webhookid webhook-id })
                   (set-fields (merge payload {:userid user-id :webhookid webhook-id }))))))))
 
+(defn update-filter [{:keys [db] :as webhooks} user-id webhook-id payload]
+  {:pre [(nil? (schema/check schema/WhitelistEntry payload))] }
+  (let [webhook-ids (map :id (list-webhooks webhooks user-id))
+        correct-owner (boolean (some (set webhook-ids) [webhook-id]))]
+    (if-not correct-owner
+      (throw (ex-info (str "No webhook found for " webhook-id) 
+                      { :friendly true :type :security }))
+      (wrap-pgsql-errors 
+        (with-db db
+          (update whitelist-entity
+                  (where {:id (:id payload)
+                          :userid user-id
+                          :webhookid webhook-id })
+                  (set-fields (merge payload {:userid user-id :webhookid webhook-id }))))))))
+
+(defn delete-filter [{:keys [db]} user-id filter-id]
+  (with-db db
+    (let [_ (delete whitelist-entity
+                    (where {:id filter-id
+                            :userid user-id }))]
+      { :ok true })))

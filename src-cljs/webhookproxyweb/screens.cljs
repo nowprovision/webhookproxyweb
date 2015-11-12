@@ -1,8 +1,11 @@
 (ns webhookproxyweb.screens
-  (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :refer [register-sub 
-                                   subscribe
-                                   register-handler]]))
+  (:require [freeman.ospa.core 
+             :refer [register-sub 
+                     register-handler
+                     subscribe 
+                     dispatch 
+                     resolve-route] 
+             :refer-macros [reaction]]))
 
 (register-sub :active-screen-changed (fn [db _] (reaction (:active-screen @db))))
 

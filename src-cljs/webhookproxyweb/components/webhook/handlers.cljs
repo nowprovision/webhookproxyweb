@@ -13,6 +13,9 @@
                                 :completed-event [:redirect :list-webhooks] }))
 
 (register-handler :webhook-removed
-                  (handle-form {:model :webhoook 
+                  (handle-form {:model :webhook 
                                 :action :delete 
                                 :completed-event [:redirect :list-webhooks] }))
+(println "XXX")
+
+

@@ -10,9 +10,9 @@
 (register-handler :filter-spec-changed
                   (handle-form {:model :filter 
                                 :action :modify 
-                                :completed-event [:redirect :list-webhooks] }))
+                                :completed-event [:redirect :list-filters] }))
 
 (register-handler :filter-removed
                   (handle-form {:model :filter 
                                 :action :delete 
-                                :completed-event [:redirect :list-webhooks] }))
+                                :completed-event [:redirect :list-filters] }))

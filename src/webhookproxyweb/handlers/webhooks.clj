@@ -13,13 +13,13 @@
     (assoc component :routes (build-routes webhooks)))
   (stop [component] component))
 
-(declare webhook-action list-webhooks delete-webhook add-edit-webhook add-edit-whitelist)
+(declare webhook-action filter-action list-webhooks delete-webhook add-edit-webhook add-edit-whitelist)
 
 (defn build-routes [webhooks]
   (with-security [:account-admin]
     (GET "/api/webhooks" req (list-webhooks webhooks req))
     (POST "/api/webhooks" req (webhook-action webhooks req))
-    (POST "/api/webhooks/:id/filters" req (add-edit-whitelist webhooks req))))
+    (POST "/api/webhooks/:id/filters" req (filter-action webhooks req))))
 
 (defn list-webhooks [webhooks req]
   (let [user-id (-> req :session :uid)
@@ -46,11 +46,25 @@
         result (webhooks/delete-webhook webhooks user-id webhook-id)]
     { :body result }))
 
-(defn add-edit-whitelist [webhooks req]
+(defmulti filter-action (fn [webhooks req] (keyword (-> req :body :action))))
+
+(defmethod filter-action :new [webhooks req]
   (let [user-id (-> req :session :uid)
         webhook-id (-> req :params :id)
-        is-new (-> req :body :is-new)
         payload (-> req :body :data)
-        db-fn (if is-new webhooks/add-whitelist webhooks/update-whitelist)
-        op-result (db-fn webhooks user-id webhook-id payload)]
+        op-result (webhooks/add-filter webhooks user-id webhook-id payload)]
+    { :body (webhooks/get-webhook webhooks user-id webhook-id) }))
+
+(defmethod filter-action :modify [webhooks req]
+  (let [user-id (-> req :session :uid)
+        webhook-id (-> req :params :id)
+        payload (-> req :body :data)
+        op-result (webhooks/update-filter webhooks user-id webhook-id payload)]
+    { :body (webhooks/get-webhook webhooks user-id webhook-id) }))
+
+(defmethod filter-action :delete [webhooks req]
+  (let [user-id (-> req :session :uid)
+        filter-id (-> req :body :id)
+        webhook-id (-> req :params :id)
+        result (webhooks/delete-filter webhooks user-id filter-id)]
     { :body (webhooks/get-webhook webhooks user-id webhook-id) }))

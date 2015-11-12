@@ -1,24 +1,18 @@
 (ns webhookproxyweb.core
-  (:require-macros [reagent.ratom :refer [reaction]]  
-                   [webhookproxyweb.config :refer [from-config]]
-                   [secretary.core :refer [defroute]])
-  (:require [cljs-uuid-utils.core :as uuid]
-            [ajax.core :refer [GET POST]]
-            [webhookproxyweb.model :as model]
-            [webhookproxyweb.components.webhook.view :as webhook-view]
-            [webhookproxyweb.components.filters.view :as filter-view]
-            [webhookproxyweb.forms :as forms]
+  (:require [freeman.ospa.core 
+             :refer [register-sub 
+                     register-handler
+                     render
+                     subscribe 
+                     dispatch 
+                     force-transition!
+                     resolve-route] 
+             :refer-macros [reaction]]
             [webhookproxyweb.sync :as sync]
-            [webhookproxyweb.screens :as screens]
             [webhookproxyweb.auth :as auth]
-            [reagent.core :as reagent]
-            [re-frame.db]
-            [re-frame.core :refer [register-handler 
-                                   register-sub 
-                                   dispatch 
-                                   dispatch-sync
-                                   subscribe]]
-            [freeman.ospa.routing :as routing]))
+            [webhookproxyweb.screens :as screens]
+            [webhookproxyweb.components.webhook.view :as webhook-view]
+            [webhookproxyweb.components.filters.view :as filter-view]))
 
 (enable-console-print!)
 
@@ -31,13 +25,15 @@
 
 (defn root-template [] 
   (let [logged-in (subscribe [:logged-in])
+        login-started (subscribe [:login-started])
         screen-atom (subscribe [:screen-changed])]
     (fn []
       [:div
        (if @logged-in
          (let [[active-screen & screen-args] (or @screen-atom :default)]
            [:div 
-            [:h1 "Webhookproxy:  " (pr-str active-screen) " | " (pr-str screen-args)] 
+            [:h1 "Webhookproxy Control Panel"]
+            [:button { :on-click #(dispatch [:logout]) } "Logout" ]
             (case active-screen
               :filters
               [:div
@@ -53,15 +49,18 @@
               )
             ])
          [:div 
-          [:h1 "Logging you in..."]]
-         )])))
+          (if @login-started
+            [:h1 "Logging you in..." @login-started]
+            [:div
+             [:button { :on-click #(dispatch [:start-auth-flow]) } "Login"]]
+            )])])))
 
-(defn ^:export rootrender [& args] 
-  (reagent/render [root-template] (js/document.getElementById "app")))
+(defn ^:export root-render [& args] 
+  (render [root-template] (js/document.getElementById "app")))
 
 (defn ^:export run []
   (dispatch [:fetch-identity])
   ; force the initial client side routing transitiion from page load
-  (routing/force-transition! (-> js/window .-location .-pathname))
-  (rootrender))
+  (force-transition! (-> js/window .-location .-pathname))
+  (root-render))
 

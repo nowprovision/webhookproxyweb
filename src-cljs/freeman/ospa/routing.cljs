@@ -44,4 +44,5 @@
                                                   }))
   (secretary/add-route! route-path route-fn))
 
-
+(defn resolve-route [route-url param-map]
+  (secretary.core/render-route route-url (or param-map {})))

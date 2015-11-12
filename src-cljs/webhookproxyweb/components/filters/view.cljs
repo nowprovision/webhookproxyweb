@@ -2,7 +2,7 @@
   (:require [freeman.ospa.core :refer [subscribe dispatch ratom]]
             [webhookproxyweb.components.filters.handlers]
             [webhookproxyweb.components.filters.subs]
-            [webhookproxyweb.components.filters.routes]
+             [webhookproxyweb.components.filters.routes]
             [webhookproxyweb.utils :as utils]
             [webhookproxyweb.components.shared :refer [bind-fields 
                                                        form-input 
@@ -48,6 +48,7 @@
         [:thead
          [:th "Description"]
          [:th "IP"]
+         [:th ""]
          [:th ""]]
         (for [{:keys [id ip description] :as vfilter} 
               (sort-by :description @filters)]
@@ -60,7 +61,13 @@
                                             :webhook-id webhook-id
                                             :filter-id id
                                             ]) } 
-                       "Edit"] ]
+                       "Edit"]] 
+                      [:td
+                      [:button {:on-click 
+                                #(dispatch [:filter-removed { :id id 
+                                                             :context { :webhook-id webhook-id }
+                                                             } ]) } 
+                       "Delete"] ]
                       ]) ]])))
 
 (defn update-add-component [webhook-id filter-id]
@@ -68,6 +75,7 @@
         sync-path (str "/api/webhooks/" webhook-id "/whitelists")
         form-sub (subscribe [:form-changed form-id])
         is-new (if filter-id false true)
+        action (if is-new :filter-spec-created :filter-spec-changed)
         existing-filter (subscribe [:filter-changed webhook-id filter-id])
         staging (ratom (if is-new {:id  (utils/uuid-str) :description "" :ip ""}
                         @existing-filter))]
@@ -89,9 +97,9 @@
        [:br]
        [:button {:on-click #(dispatch [:redirect :list-filters 
                                        :webhook-id webhook-id]) } "Cancel"]
-       [:button {:on-click #(dispatch [:filter-spec-created {:data @staging 
-                                                             :id (:id @staging)
-                                                             :context { :webhook-id webhook-id }
-                                                             :form-id form-id }]) } 
+       [:button {:on-click #(dispatch [action {:data @staging 
+                                               :id (:id @staging)
+                                               :context { :webhook-id webhook-id }
+                                               :form-id form-id }]) } 
         (if is-new "Add Filter" "Update Filter")]]
       )))
