@@ -52,16 +52,12 @@
       { :id webhook-id })))
 
 (defn add-webhook [{:keys [db]} user-id payload]
-  {:pre [(nil? (schema/check schema/WebHookProxyEntry payload))] 
-   :post [(nil? (schema/check schema/WebHookProxyEntry %))] }
   (-> (wrap-pgsql-errors (with-db db
                            (insert webhook-entity
                                    (values (merge (dissoc payload :whitelist)
                                                   {:active true :deleted false :userid user-id })))))))
 
 (defn update-webhook [{:keys [db] :as webhooks} user-id payload]
-  {:pre [(nil? (schema/check schema/WebHookProxyEntry payload))] 
-   :post [(nil? (schema/check schema/WebHookProxyEntry %))] }
   (let [payload (merge (dissoc payload :whitelist)
                        {:active true :deleted false :userid user-id })]
     (wrap-pgsql-errors
@@ -87,7 +83,7 @@
                                           }))))))))
 
 (defn update-filter [{:keys [db] :as webhooks} user-id webhook-id payload]
-  {:pre [(nil? (schema/check schema/WhitelistEntry payload))] }
+  {:pre [(nil? (schema/check schema/filter-schema payload))] }
   (let [webhook-ids (map :id (list-webhooks webhooks user-id))
         correct-owner (boolean (some (set webhook-ids) [webhook-id]))]
     (if-not correct-owner
@@ -102,7 +98,7 @@
                   (set-fields (merge payload {:userid user-id :webhookid webhook-id }))))))))
 
 (defn update-filter [{:keys [db] :as webhooks} user-id webhook-id payload]
-  {:pre [(nil? (schema/check schema/WhitelistEntry payload))] }
+  {:pre [(nil? (schema/check schema/filter-schema payload))] }
   (let [webhook-ids (map :id (list-webhooks webhooks user-id))
         correct-owner (boolean (some (set webhook-ids) [webhook-id]))]
     (if-not correct-owner

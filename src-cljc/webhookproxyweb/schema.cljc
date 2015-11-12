@@ -6,29 +6,38 @@
                  (s/pred #(and (string? %) (> (count (strings/trim %)) 0)))
                  {:constraint-msg "must not be blank"}))
 
-(def WhitelistEntry 
-  { :id not-blank
-    :description not-blank
-    (s/optional-key :userid) s/Str
-    (s/optional-key :webhookid) s/Str
-    :ip not-blank })
+(defn size-between [len-min len-max]
+  (with-meta
+    (s/pred (fn [s] (and (string? s) (>= (count s) len-min) (<= (count s) len-max))))
+    { :constraint-msg (str "must be between " len-min " and " len-max " in length") } ))
+  
+(def uuid-str (s/pred (and (fn [x] (string? x) (= (count x) 36)))))
 
-(def WebHookProxyEntry 
-  {:name not-blank
-   :id not-blank
-   (s/optional-key :new) s/Bool
-   (s/optional-key :active) s/Bool
-   (s/optional-key :deleted) s/Bool
-   (s/optional-key :userid) s/Str
-   (s/optional-key :whitelist) [WhitelistEntry]
-   :subdomain not-blank
-   :secret not-blank
-   :description not-blank })
+(def ip-str s/Str)
 
-(def webhook-schema WebHookProxyEntry)
-(def filter-schema WhitelistEntry)
+(def filter-schema 
+  { :id uuid-str
+    :description (size-between 1 200)
+    :webhookid uuid-str
+    :ip ip-str })
+
+(def webhook-schema 
+  {:id uuid-str
+   :name (size-between 1 50) 
+   :subdomain (size-between 1 200)
+   :secret (size-between 8 50) 
+   :description (size-between 1 200)
+   (s/optional-key :filters) [filter-schema]
+   })
+
+
+#?(:clj (def webhook-db-schema (merge webhook-schema { :userid uuid-str } )))
+
 ; alias check
 (def check s/check)
+(def validate s/validate)
+(def maybe s/maybe)
+(def enum s/enum)
 
 (defn field->friendly [field]
   (-> field

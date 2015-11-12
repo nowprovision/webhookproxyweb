@@ -44,7 +44,7 @@
                  [re-frame "0.4.1"]
                  [reagent-forms "0.5.12"]
                  [venantius/accountant "0.1.1"]
-                 [prismatic/schema "1.0.1"]
+                 [prismatic/schema "1.0.2"]
                  [secretary "1.2.3"]
                  [midje "1.7.0"]
                  [spyscope "0.1.5"]

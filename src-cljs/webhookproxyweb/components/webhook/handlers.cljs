@@ -16,6 +16,5 @@
                   (handle-form {:model :webhook 
                                 :action :delete 
                                 :completed-event [:redirect :list-webhooks] }))
-(println "XXX")
 
 

@@ -72,7 +72,6 @@
 
 (defn update-add-component [webhook-id filter-id]
   (let [form-id (utils/uuid-keyword)
-        sync-path (str "/api/webhooks/" webhook-id "/whitelists")
         form-sub (subscribe [:form-changed form-id])
         is-new (if filter-id false true)
         action (if is-new :filter-spec-created :filter-spec-changed)
