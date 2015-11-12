@@ -1,0 +1,4 @@
+#!/bin/bash
+
+lein clean
+rm -fr resources/public/js

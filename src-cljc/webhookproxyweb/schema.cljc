@@ -22,6 +22,7 @@
    (s/optional-key :userid) s/Str
    (s/optional-key :whitelist) [WhitelistEntry]
    :subdomain not-blank
+   :secret not-blank
    :description not-blank })
 
 ; alias check

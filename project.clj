@@ -3,7 +3,7 @@
   :url "https://www.webhookproxy.com"
   :license {:name "MIT "
             :url "https://opensource.org/licenses/MIT"}
-  :plugins [[lein-cljsbuild "1.1.0"]
+  :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.4.1"]]
   :cljsbuild {
               :repl-listen-port 9000
@@ -20,6 +20,7 @@
   :repl-options { :init-ns webhookproxyweb.repl }
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.145"]
+                 [org.clojure/core.async "0.2.371"]
                  [slamhound "1.5.5"]
                  [com.taoensso/sente "1.6.0"]
                  [com.lucasbradstreet/cljs-uuid-utils "1.0.2"]

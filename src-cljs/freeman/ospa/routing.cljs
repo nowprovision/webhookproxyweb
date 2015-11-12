@@ -1,4 +1,4 @@
-(ns webhookproxyweb.routing
+(ns freeman.ospa.routing
   (:require [secretary.core :as secretary]
             [goog.events :as events]
             [goog.history.EventType :as EventType]
@@ -26,7 +26,22 @@
     (secretary/dispatch! path)
     (.setToken history path)))
 
-(register-handler :redirect (fn [db [_ uri]]
-                              (transition! uri)
+(def route-map (atom {}))
+
+(register-handler :redirect (fn [db [_ uri & args]]
+                              (if (string? uri)
+                                (transition! uri)
+                                (let [route-fn (:fn (get @route-map uri))]
+                                  (transition! (route-fn args))
+                                  ))
                               db))
                               
+
+(defn register-route [route-key route-path route-fn]
+  (swap! route-map #(assoc % route-key { :path route-path
+                                            :fn (fn [params] 
+                                                  (secretary/render-route route-path params))
+                                                  }))
+  (secretary/add-route! route-path route-fn))
+
+

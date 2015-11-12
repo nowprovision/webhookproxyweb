@@ -1,14 +1,18 @@
 (ns webhookproxyweb.components.filters.handlers
-  (:require [re-frame.core :refer [dispatch register-handler]]
-            [webhookproxyweb.components.filters.routes :refer [list-filters-path]]
-            [webhookproxyweb.model :as model]))
+  (:require [freeman.ospa.core :refer [register-handler]]
+            [webhookproxyweb.forms :refer [handle-form]]))
 
-(register-handler :filter-change-submitted
-                  (fn [db [_ webhook-id payload]]
-                    (println "HERE")
-                    (dispatch [:submitted (merge {:schema model/WhitelistEntry
-                                                  :sync-path (str "/api/webhooks/" webhook-id "/filters")
-                                                  :done-path  (list-filters-path
-                                                                { :webhook-id webhook-id})
-                                                  } payload)])
-                    db))
+(register-handler :filter-spec-created
+                  (handle-form {:model :filter
+                                :action :new 
+                                :completed-event [:redirect :list-filters] }))
+
+(register-handler :filter-spec-changed
+                  (handle-form {:model :filter 
+                                :action :modify 
+                                :completed-event [:redirect :list-webhooks] }))
+
+(register-handler :filter-removed
+                  (handle-form {:model :filter 
+                                :action :delete 
+                                :completed-event [:redirect :list-webhooks] }))

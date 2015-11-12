@@ -1,6 +1,7 @@
 (ns webhookproxyweb.components.webhook.subs
-  (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :refer [subscribe register-sub]]))
+  (:require [freeman.ospa.core 
+             :refer [register-sub subscribe] 
+             :refer-macros [reaction]]))
 
 (register-sub :webhooks-changed (fn [db _] 
                                   (reaction (:items @db))))

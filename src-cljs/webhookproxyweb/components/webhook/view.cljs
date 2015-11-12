@@ -1,19 +1,13 @@
 (ns webhookproxyweb.components.webhook.view
-  (:require [webhookproxyweb.components.webhook.handlers]
+  (:require [freeman.ospa.core :refer [dispatch subscribe ratom]]
+            [webhookproxyweb.components.webhook.handlers]
             [webhookproxyweb.components.webhook.subs]
-            [webhookproxyweb.components.webhook.routes 
-             :refer [add-webhook-path 
-                     edit-webhook-path
-                     ;list-whistlists-path
-                     list-webhooks-path]]
-            [webhookproxyweb.components.filters.routes 
-             :refer [list-filters-path]]
-            [reagent-forms.core :refer [bind-fields]]
-            [reagent.core :refer [atom]]
+            [webhookproxyweb.components.webhook.routes]
             [webhookproxyweb.utils :as utils]
-            [webhookproxyweb.components.shared :refer [form-input mask-loading]]
-            [re-frame.core :refer [dispatch subscribe]]))
-
+            [webhookproxyweb.components.shared :refer [bind-fields
+                                                       form-input 
+                                                       mask-loading]]))
+            
 (declare listing-component update-add-component)
 
 (defn root []
@@ -28,13 +22,13 @@
                            :listing
                            [:div
                             [:div
-                             [:button {:on-click #(dispatch [:redirect (add-webhook-path)]) } "Add New Webhook"]]
+                             [:button {:on-click #(dispatch [:redirect :add-webhook]) } "Add New Webhook"]]
                             [:br]
                             (apply conj [listing-component] screen-args)]
                            :update-add
                            [:div
                             [:div
-                             [:button {:on-click #(dispatch [:redirect (list-webhooks-path)]) } "Show Webhooks"]]
+                             [:button {:on-click #(dispatch [:redirect :list-webhooks]) } "Show Webhooks"]]
                             (apply conj [update-add-component] screen-args)])]))
                     ))))
 
@@ -46,33 +40,40 @@
         [:thead
          [:th "Name"]
          [:th "Description"]
-         [:th "Subomain"]
+         [:th "Subdomain"]
+         [:th "Secret"]
+         [:th "SSL Only?"]
+         [:th ""]
          [:th ""]
          [:th ""]]
+       [:tbody
        (for [item (sort-by :name @webhooks)]
          ^{:key (:name item)} 
          [:tr 
           [:td (:name item)]
           [:td (:description item)]
           [:td (:subdomain item)]
+          [:td (:secret item)]
+          [:td (:sslonly? item)]
           [:td 
-           [:button {:on-click #(dispatch [:redirect 
-                                           (edit-webhook-path 
-                                             {:webhook-id (:id item) })]) } 
+           [:button {:on-click #(dispatch [:webhook-removed {:id (:id item)}] ) } 
+            "Delete"]]
+          [:td 
+           [:button {:on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) } 
             "Edit"]]
           [:td
-           [:button {:on-click #(dispatch [:redirect 
-                                           (list-filters-path { :webhook-id (:id item) })]) } 
+           [:button {:on-click #(dispatch [:redirect :list-filters :webhook-id (:id item)]) } 
             "Edit IP Filters"]]]
-          )]])))
+          )]]])))
 
 
 (defn update-add-component [webhook-id]
   (let [form-id (utils/uuid-keyword)
         form-sub (subscribe [:form-changed form-id])
         is-new (if webhook-id false true)
+        form-event (if is-new :webhook-spec-created :webhook-spec-changed)
         webhook-sub (subscribe [:webhook-changed webhook-id])
-        staging (atom (if is-new {:id (utils/uuid-str)
+        staging (ratom (if is-new {:id (utils/uuid-str)
                                     :description ""
                                     :subdomain "" }
                         @webhook-sub))]
@@ -94,12 +95,18 @@
                                   :id :description 
                                   :placeholder "Description"})
         (form-input "Subdomain" {:field :text 
-                                :id :subdomain 
-                                :placeholder "Subdomain"})
+                                 :id :subdomain 
+                                 :placeholder "Subdomain"})
+        (form-input "Secret" {:field :text 
+                              :id :secret 
+                              :placeholder "Secret url suffix"})
         ] staging]
        [:br]
        [:div
-        [:button {:on-click #(dispatch [:webhook-change-submitted {:data @staging :is-new is-new :form-id form-id }]) } 
+        [:button {:on-click #(dispatch [form-event
+                                        {:data @staging 
+                                         :id (or webhook-id (:id @staging))
+                                         :form-id form-id }]) } 
             (if is-new "Add Webhook" "Update Webhoook")]
         ]
        ])))

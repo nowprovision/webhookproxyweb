@@ -1,13 +1,15 @@
 (ns webhookproxyweb.components.filters.routes
-  (:require-macros  [secretary.core :refer [defroute]])
-  (:require [re-frame.core :refer [dispatch]]
-            [secretary.core :as secretary]))
+  (:require [freeman.ospa.core :refer [dispatch
+                                       register-route]]))
 
-(defroute list-filters-path "/webhooks/:webhook-id/filters" [webhook-id] 
-  (dispatch [:change-screen :filters :listing webhook-id]))
+(register-route :list-filters "/webhooks/:webhook-id/filters" 
+                (fn [{:keys [webhook-id]}] 
+                  (dispatch [:change-screen :filters :listing webhook-id])))
 
-(defroute add-filter-path "/tasks/:webhook-id/new-filter" [webhook-id] 
-  (dispatch [:change-screen :filters :update-add webhook-id]))
+(register-route :add-filter "/tasks/:webhook-id/new-filter" 
+                (fn [{:keys [webhook-id]}] 
+                  (dispatch [:change-screen :filters :update-add webhook-id])))
 
-(defroute edit-filter-path "/webhooks/:webhook-id/filters/:filter-id" [webhook-id filter-id] 
-  (dispatch [:change-screen :filters :update-add webhook-id filter-id]))
+(register-route :edit-filter "/webhooks/:webhook-id/filters/:filter-id" 
+                (fn [{:keys [webhook-id filter-id]}] 
+                  (dispatch [:change-screen :filters :update-add webhook-id filter-id])))

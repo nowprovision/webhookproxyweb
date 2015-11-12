@@ -1,19 +1,12 @@
 (ns webhookproxyweb.components.filters.view
-  (:require [webhookproxyweb.components.filters.handlers]
+  (:require [freeman.ospa.core :refer [subscribe dispatch ratom]]
+            [webhookproxyweb.components.filters.handlers]
             [webhookproxyweb.components.filters.subs]
-            [webhookproxyweb.components.webhook.routes 
-             :refer [list-webhooks-path
-                     edit-webhook-path]]
-            [webhookproxyweb.components.filters.routes 
-             :refer [list-filters-path
-                     add-filter-path
-                     ;list-whistlists-path
-                     edit-filter-path]]
-            [reagent-forms.core :refer [bind-fields]]
+            [webhookproxyweb.components.filters.routes]
             [webhookproxyweb.utils :as utils]
-            [webhookproxyweb.components.shared :refer [form-input mask-loading]]
-            [reagent.core :refer [atom]]
-            [re-frame.core :refer [dispatch subscribe]]))
+            [webhookproxyweb.components.shared :refer [bind-fields 
+                                                       form-input 
+                                                       mask-loading]]))
 
 (declare listing-component update-add-component)
 
@@ -30,11 +23,11 @@
                            [:table
                             [:tr
                              [:td
-                              [:button { :on-click #(dispatch [:redirect (list-webhooks-path)]) }
+                              [:button { :on-click #(dispatch [:redirect :list-webhooks]) }
                                "Show All Webhooks"]]
                              [:td
-                              [:button { :on-click #(dispatch [:redirect (edit-webhook-path { :webhook-id webhook-id })]) }
-                               "Edit Webhook Settings"]]] ]
+                              [:button { :on-click #(dispatch [:redirect :edit-webhook :webhook-id webhook-id]) }
+                               (str "Edit Webhook Settings")]]] ]
                            (apply conj [listing-component] webhook-id screen-args)]
                           :update-add
                           (apply conj [update-add-component] webhook-id screen-args)))
@@ -46,7 +39,9 @@
     (fn []
       [:div
        [:h2 "IP Filters"]
-       [:button {:on-click #(dispatch [:redirect (add-filter-path { :webhook-id webhook-id })]) } "Add IP Filter"]
+       [:button {:on-click #(dispatch [:redirect :add-filter 
+                                       :webhook-id webhook-id]) } 
+        "Add IP Filter"]
        (when (zero? (:count @filters))
          [:p "There are currently no IP filters for this webhook defined."])
        [:table
@@ -60,10 +55,12 @@
                       [:td description]
                       [:td ip]
                       [:td 
-                      [:button {:on-click #(dispatch [:redirect
-                                                      (edit-filter-path 
-                                                        {:webhook-id webhook-id 
-                                                         :filter-id id })]) } "Edit"] ]
+                      [:button {:on-click 
+                                #(dispatch [:redirect :edit-filter 
+                                            :webhook-id webhook-id
+                                            :filter-id id
+                                            ]) } 
+                       "Edit"] ]
                       ]) ]])))
 
 (defn update-add-component [webhook-id filter-id]
@@ -72,7 +69,7 @@
         form-sub (subscribe [:form-changed form-id])
         is-new (if filter-id false true)
         existing-filter (subscribe [:filter-changed webhook-id filter-id])
-        staging (atom (if is-new {:id  (utils/uuid-str) :description "" :ip ""}
+        staging (ratom (if is-new {:id  (utils/uuid-str) :description "" :ip ""}
                         @existing-filter))]
     (fn [webhook-id] 
       [:div
@@ -90,9 +87,11 @@
          (form-input "IP or IP mask" { :field :text :id :ip :placeholder "123.123.123.123/24" })
          ] staging] 
        [:br]
-       [:button {:on-click #(dispatch [:redirect (list-filters-path { :webhook-id webhook-id}) ]) } "Cancel"]
-       [:button {:on-click #(dispatch [:filter-change-submitted webhook-id {:data @staging 
-                                                                            :is-new is-new 
-                                                                            :form-id form-id }]) } 
+       [:button {:on-click #(dispatch [:redirect :list-filters 
+                                       :webhook-id webhook-id]) } "Cancel"]
+       [:button {:on-click #(dispatch [:filter-spec-created {:data @staging 
+                                                             :id (:id @staging)
+                                                             :context { :webhook-id webhook-id }
+                                                             :form-id form-id }]) } 
         (if is-new "Add Filter" "Update Filter")]]
       )))

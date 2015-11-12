@@ -5,7 +5,6 @@
   (:require [cljs-uuid-utils.core :as uuid]
             [ajax.core :refer [GET POST]]
             [webhookproxyweb.model :as model]
-            [webhookproxyweb.routes :as routes]
             [webhookproxyweb.components.webhook.view :as webhook-view]
             [webhookproxyweb.components.filters.view :as filter-view]
             [webhookproxyweb.forms :as forms]
@@ -19,7 +18,7 @@
                                    dispatch 
                                    dispatch-sync
                                    subscribe]]
-            [webhookproxyweb.routing :as routing]))
+            [freeman.ospa.routing :as routing]))
 
 (enable-console-print!)
 
@@ -38,7 +37,7 @@
        (if @logged-in
          (let [[active-screen & screen-args] (or @screen-atom :default)]
            [:div 
-            [:h1 "Webhookproxy"] 
+            [:h1 "Webhookproxy:  " (pr-str active-screen) " | " (pr-str screen-args)] 
             (case active-screen
               :filters
               [:div

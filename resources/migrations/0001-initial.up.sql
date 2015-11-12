@@ -5,6 +5,7 @@ CREATE TABLE webhooks (
   userid text not null,
   name text not null CHECK (name <> ''::text),
   description text,
+  secret text not null CHECK (name <> ''::text),
   subdomain text not null UNIQUE CHECK (subdomain <> ''::text),
   CONSTRAINT webhooks_pk PRIMARY KEY (id),
   UNIQUE (id, userid)

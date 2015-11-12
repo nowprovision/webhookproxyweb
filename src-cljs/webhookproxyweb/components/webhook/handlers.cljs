@@ -1,12 +1,18 @@
 (ns webhookproxyweb.components.webhook.handlers
-  (:require [re-frame.core :refer [dispatch register-handler]]
-            [webhookproxyweb.model :as model]))
+  (:require [freeman.ospa.core :refer [register-handler]]
+            [webhookproxyweb.forms :refer [handle-form]]))
 
-(register-handler :webhook-change-submitted
-                  (fn [db [_ payload]]
-                       (dispatch [:submitted (merge {:schema model/WebHookProxyEntry
-                                                     :sync-path "/api/webhooks"
-                                                     :done-path "/" } payload)])
-                       
-                       db))
-  
+(register-handler :webhook-spec-created
+                  (handle-form {:model :webhook
+                                :action :new 
+                                :completed-event [:redirect :list-webhooks] }))
+
+(register-handler :webhook-spec-changed
+                  (handle-form {:model :webhook 
+                                :action :modify 
+                                :completed-event [:redirect :list-webhooks] }))
+
+(register-handler :webhook-removed
+                  (handle-form {:model :webhoook 
+                                :action :delete 
+                                :completed-event [:redirect :list-webhooks] }))

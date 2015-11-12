@@ -4,7 +4,7 @@
             [webhookproxyweb.schema :as schema]
             [korma.core :refer [insert limit 
                                 update set-fields
-                                with
+                                delete with
                                 select values where]]
             [webhookproxyweb.db :refer [webhook-entity 
                                         whitelist-entity
@@ -40,6 +40,17 @@
             (with whitelist-entity)
             (where {:id webhook-id 
                     :userid user-id })))))
+
+(defn delete-webhook [{:keys [db]} user-id webhook-id]
+  (with-db db
+    (println user-id ":" webhook-id)
+    (let [_ (delete whitelist-entity
+                    (where {:webhookid webhook-id 
+                            :userid user-id }))
+          _ (delete webhook-entity
+                    (where {:id webhook-id 
+                            :userid user-id }))]
+      { :id webhook-id })))
 
 (defn add-webhook [{:keys [db]} user-id payload]
   {:pre [(nil? (schema/check schema/WebHookProxyEntry payload))] 

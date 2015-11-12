@@ -1,13 +1,16 @@
 (ns webhookproxyweb.components.webhook.routes
-  (:require-macros  [secretary.core :refer [defroute]])
-  (:require [re-frame.core :refer [dispatch]]
-            [secretary.core :as secretary]))
+  (:require [freeman.ospa.core :refer [dispatch
+                                       register-route]]))
 
-(defroute list-webhooks-path "/" [] 
-  (dispatch [:change-screen :webhooks :listing]))
+(register-route :list-webhooks
+                "/" 
+                (fn [] (dispatch [:change-screen :webhooks :listing])))
 
-(defroute add-webhook-path "/tasks/new-webhook" []
-  (dispatch [:change-screen :webhooks :update-add]))
+(register-route :add-webhook
+                "/tasks/new-webhook" 
+                (fn [] (dispatch [:change-screen :webhooks :update-add])))
 
-(defroute edit-webhook-path "/webhooks/:webhook-id" [webhook-id] 
-  (dispatch [:change-screen :webhooks :update-add webhook-id]))
+(register-route :edit-webhook
+                "/webhooks/:webhook-id" 
+                (fn [{:keys [webhook-id]}]
+                  (dispatch [:change-screen :webhooks :update-add webhook-id])))
