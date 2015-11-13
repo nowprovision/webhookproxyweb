@@ -31,5 +31,8 @@
   `(kormadb/with-db (:pool ~db#)
     ~@forms#))
 
+(defn using-db [db query-fn query-arg]
+  (query-fn query-arg { :connection @(:pool db) }))
+
 
 

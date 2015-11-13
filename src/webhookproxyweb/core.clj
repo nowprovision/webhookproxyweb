@@ -1,4 +1,5 @@
 (ns webhookproxyweb.core
+  (:require webhookproxyweb.jdbc)
   (:require [webhookproxyweb.system :as system]))
 
 (defn -main [& args]

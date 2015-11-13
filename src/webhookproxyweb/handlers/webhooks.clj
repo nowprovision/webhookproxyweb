@@ -16,7 +16,6 @@
 
 (declare webhook-action filter-action list-webhooks delete-webhook add-edit-webhook add-edit-whitelist)
 
-
 (defn request-schema [data-schema]
   {:action (schema/enum "new" "modify" "delete")
    :id schema/uuid-str
@@ -42,15 +41,17 @@
 (defmethod webhook-action :new  [webhooks req]
   (schema/validate (request-schema schema/webhook-schema) (-> req :body))
   (let [user-id (-> req :session :uid)
+        webhook-id (-> req :body :id)
         payload (-> req :body :data)
-        result (webhooks/add-webhook webhooks user-id payload)]
+        result (webhooks/add-webhook webhooks user-id webhook-id payload)]
     { :body (sanitize-against-schema schema/webhook-schema result) }))
 
 (defmethod webhook-action :modify  [webhooks req]
   (schema/validate (request-schema schema/webhook-schema) (-> req :body))
   (let [user-id (-> req :session :uid)
+        webhook-id (-> req :body :id)
         payload (-> req :body :data)
-        result (webhooks/update-webhook webhooks user-id payload)]
+        result (webhooks/update-webhook webhooks user-id webhook-id payload)]
     { :body (sanitize-against-schema schema/webhook-schema result) }))
 
 (defmethod webhook-action :delete [webhooks req]

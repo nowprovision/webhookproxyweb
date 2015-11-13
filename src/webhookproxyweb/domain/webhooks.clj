@@ -1,5 +1,6 @@
 (ns webhookproxyweb.domain.webhooks
   (:refer-clojure :exclude [update])
+  (:require [yesql.core :refer [defquery]])
   (:require [clj-uuid :as uuid]
             [webhookproxyweb.schema :as schema]
             [korma.core :refer [insert limit 
@@ -8,11 +9,17 @@
                                 select values where]]
             [webhookproxyweb.db :refer [webhook-entity 
                                         whitelist-entity
+                                        using-db
                                         with-db]]
             [webhookproxyweb.external.github :as github]))
 
 
 (defrecord WebHooks [db])
+
+(defquery insert-webhook<! "sql/webhook-insert.sql")
+(defquery get-webhooks "sql/webhook-listing.sql")
+(defquery update-webhook<! "sql/webhook-update.sql")
+(defquery delete-webhook! "sql/webhook-delete.sql")
 
 (defmacro wrap-pgsql-errors [& forms]
   `(try
@@ -28,44 +35,31 @@
            (throw pe#))))))
 
 (defn list-webhooks [{:keys [db]} user-id]
-  (with-db db
-    (select webhook-entity
-            (with whitelist-entity)
-            (where {:deleted false 
-                    :userid user-id }))))
+  (map :blob (using-db db get-webhooks { :userid user-id })))
 
 (defn get-webhook [{:keys [db]} user-id webhook-id]
-  (with-db db
-    (first (select webhook-entity
-            (with whitelist-entity)
-            (where {:id webhook-id 
-                    :userid user-id })))))
+  (first (filter #(= (:id %) webhook-id) (list-webhooks db user-id))))
 
-(defn delete-webhook [{:keys [db]} user-id webhook-id]
-  (with-db db
-    (let [_ (delete whitelist-entity
-                    (where {:webhookid webhook-id 
-                            :userid user-id }))
-          _ (delete webhook-entity
-                    (where {:id webhook-id 
-                            :userid user-id }))]
-      { :id webhook-id })))
+(defn delete-webhook [{:keys [db]} user-id webhook-id]  
+  (let [deleted (using-db db delete-webhook! 
+                          {:userid user-id :id webhook-id })]
+    (if (= deleted 1) 
+      {:id webhook-id }
+      (throw (ex-info "Unable to delete" {:friendly true :type :pgsql })))))
 
-(defn add-webhook [{:keys [db]} user-id payload]
-  (-> (wrap-pgsql-errors (with-db db
-                           (insert webhook-entity
-                                   (values (merge (dissoc payload :whitelist)
-                                                  {:active true :deleted false :userid user-id })))))))
+(defn add-webhook [{:keys [db]} user-id webhook-id payload]
+  (wrap-pgsql-errors
+    (:blob (using-db db insert-webhook<! {:userid user-id
+                                          :blob payload
+                                          :subdomain (:subdomain payload)
+                                          :id webhook-id }))))
 
-(defn update-webhook [{:keys [db] :as webhooks} user-id payload]
-  (let [payload (merge (dissoc payload :whitelist)
-                       {:active true :deleted false :userid user-id })]
-    (wrap-pgsql-errors
-      (with-db db
-        (update webhook-entity
-                (where {:id (:id payload) :userid user-id })
-                (set-fields payload))))
-    (get-webhook webhooks user-id (:id payload))))
+(defn update-webhook [{:keys [db] :as webhooks} user-id webhook-id payload]
+  (wrap-pgsql-errors
+    (:blob (using-db db update-webhook<! {:blob payload
+                                          :id webhook-id 
+                                          :subdomain (:subdomain payload)
+                                          :userid user-id }))))
 
 (defn add-filter [{:keys [db] :as webhooks} user-id webhook-id payload]
   {:pre [(nil? (schema/check schema/filter-schema payload))] 

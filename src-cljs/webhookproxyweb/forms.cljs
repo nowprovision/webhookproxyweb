@@ -32,7 +32,7 @@
             (if (:ok sync-resp)
               (dispatch [:sync-confirmed form-id action (:value sync-resp) 
                          (vec (concat completed-event (flatten (seq context))))])
-              (dispatch [:sync-errored form-id sync-resp])
+              (dispatch [:sync-errored form-id (:value sync-resp)])
               )))
          db)))))
 
@@ -65,7 +65,8 @@
           :handler (fn [resp]
                      (go (>! result-channel { :ok true :value resp })))
           :error-handler (fn [err-resp]
-                           (go (>! result-channel { :ok false :value err-resp }))) }
+                           (go (>! result-channel {:ok false 
+                                                   :value (:response err-resp) }))) }
          (POST sync-url))
     result-channel))
 

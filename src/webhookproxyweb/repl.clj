@@ -1,4 +1,5 @@
 (ns webhookproxyweb.repl
+  (:require webhookproxyweb.jdbc)
   (:require [webhookproxyweb.system :as system])
   (:require [webhookproxyweb.config :as config])
   (:require [ragtime.repl :as ragrepl])

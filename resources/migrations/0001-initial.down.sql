@@ -1,6 +1,5 @@
-DROP TABLE whitelist;
+DROP TABLE users;
 
 DROP TABLE webhooks;
 
-DROP TABLE users;
 
