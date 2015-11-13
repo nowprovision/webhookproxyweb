@@ -22,7 +22,12 @@
    :data (schema/maybe data-schema) })
 
 (defn sanitize-against-schema [data-schema data]
-  (select-keys data (keys data-schema))) 
+  (select-keys data (map
+                      (fn [k]
+                        (if (instance? schema.core.OptionalKey k)
+                          (:k k)
+                          k))
+                      (keys data-schema))))
 
 (defn build-routes [webhooks]
   (with-security [:account-admin]
@@ -81,5 +86,5 @@
   (let [user-id (-> req :session :uid)
         filter-id (-> req :body :id)
         webhook-id (-> req :params :id)
-        result (webhooks/delete-filter webhooks user-id filter-id)]
+        result (webhooks/delete-filter webhooks user-id webhook-id filter-id)]
     { :body (webhooks/get-webhook webhooks user-id webhook-id) }))

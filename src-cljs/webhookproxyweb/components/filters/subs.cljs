@@ -6,7 +6,7 @@
 (register-sub :filters-changed 
               (fn [db [_ webhook-id]]
                 (let [webhook (subscribe [:webhook-changed webhook-id])]
-                  (reaction (:whitelist @webhook)))))
+                  (reaction (:filters @webhook)))))
 
 (register-sub :filter-changed
               (fn [db [_ webhook-id filter-id]]

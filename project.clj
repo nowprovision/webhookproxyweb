@@ -23,7 +23,6 @@
                  [org.clojure/core.async "0.2.371"]
                  [slamhound "1.5.5"]
                  [yesql "0.5.1"]
-                 [com.taoensso/sente "1.6.0"]
                  [com.lucasbradstreet/cljs-uuid-utils "1.0.2"]
                  [com.stuartsierra/component "0.3.0"]
                  [danlentz/clj-uuid "0.1.6"]

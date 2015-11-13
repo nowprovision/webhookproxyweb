@@ -50,6 +50,7 @@
          [:th "IP"]
          [:th ""]
          [:th ""]]
+        [:tbody
         (for [{:keys [id ip description] :as vfilter} 
               (sort-by :description @filters)]
           ^{:key id} [:tr 
@@ -68,7 +69,7 @@
                                                              :context { :webhook-id webhook-id }
                                                              } ]) } 
                        "Delete"] ]
-                      ]) ]])))
+                      ])] ]])))
 
 (defn update-add-component [webhook-id filter-id]
   (let [form-id (utils/uuid-keyword)

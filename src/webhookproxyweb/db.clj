@@ -17,13 +17,6 @@
         .close)
     (dissoc component :pool)))
 
-(defentity whitelist-entity
-  (table :whitelist))
-
-(defentity webhook-entity
-  (table :webhooks)
-  (has-many whitelist-entity {:fk :webhookid }))
-
 (defentity user-entity
   (table :users))
 

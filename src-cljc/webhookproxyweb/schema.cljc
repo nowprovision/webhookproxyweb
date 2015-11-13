@@ -18,7 +18,6 @@
 (def filter-schema 
   { :id uuid-str
     :description (size-between 1 200)
-    :webhookid uuid-str
     :ip ip-str })
 
 (def webhook-schema 

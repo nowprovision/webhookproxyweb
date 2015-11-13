@@ -20,7 +20,7 @@
 (declare lookup-model add-form-errors sync-to-server)
 
 (defn handle-form [{:keys [model action completed-event] :as opts}]
-  (let [{:keys [schema sync-url]} (lookup-model model)]
+  (let [{:keys [schema sync-url root?]} (lookup-model model)]
     (fn [db [_ {:keys [id data form-id context] :as payload }]]
       (if-let [errors (and data (schema/check schema data))]
         (add-form-errors db form-id errors)
@@ -30,7 +30,7 @@
           (go (let [resolved-url (resolve-route sync-url context)
                     sync-resp (<! (sync-to-server resolved-url id action data xsrf-token))]
             (if (:ok sync-resp)
-              (dispatch [:sync-confirmed form-id action (:value sync-resp) 
+              (dispatch [:sync-confirmed form-id action (:value sync-resp) root?
                          (vec (concat completed-event (flatten (seq context))))])
               (dispatch [:sync-errored form-id (:value sync-resp)])
               )))
@@ -40,7 +40,8 @@
   (case model-key
   :webhook
   {:schema schema/webhook-schema
-   :sync-url "/api/webhooks" }
+   :sync-url "/api/webhooks" 
+   :root? true }
   :filter
   {:schema schema/filter-schema
    :sync-url "/api/webhooks/:webhook-id/filters" }
@@ -84,11 +85,11 @@
 (defn- remove-item [coll item]
   (filter #(not= (:id %) (:id item)) coll))
 
-(defn merge-sync-payload [db [_ form-id action payload completed-event]]
+(defn merge-sync-payload [db [_ form-id action payload root? completed-event]]
   (let [items (:items db)]
     (when completed-event (dispatch completed-event))
     (assoc db :items 
-           (if (or (= action :new) (= action :modify))
+           (if (or (= action :new) (= action :modify) (not root?))
              (merge-item items payload)
              (remove-item items payload)
              ))))

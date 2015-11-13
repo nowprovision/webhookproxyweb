@@ -1,20 +1,15 @@
 (ns webhookproxyweb.domain.webhooks
-  (:refer-clojure :exclude [update])
-  (:require [yesql.core :refer [defquery]])
-  (:require [clj-uuid :as uuid]
+  (:require [yesql.core :refer [defquery]]
+            [com.stuartsierra.component :as component]
             [webhookproxyweb.schema :as schema]
-            [korma.core :refer [insert limit 
-                                update set-fields
-                                delete with
-                                select values where]]
-            [webhookproxyweb.db :refer [webhook-entity 
-                                        whitelist-entity
-                                        using-db
-                                        with-db]]
-            [webhookproxyweb.external.github :as github]))
+            [webhookproxyweb.db :refer [using-db]]))
 
-
-(defrecord WebHooks [db])
+(defrecord WebHooks [db]
+  component/Lifecycle
+  (start [component]
+      (assoc component :update-lock (Object.)))
+  (stop [component]
+    component))
 
 (defquery insert-webhook<! "sql/webhook-insert.sql")
 (defquery get-webhooks "sql/webhook-listing.sql")
@@ -37,78 +32,65 @@
 (defn list-webhooks [{:keys [db]} user-id]
   (map :blob (using-db db get-webhooks { :userid user-id })))
 
-(defn get-webhook [{:keys [db]} user-id webhook-id]
-  (first (filter #(= (:id %) webhook-id) (list-webhooks db user-id))))
+(defn get-webhook [{:keys [db] :as webhooks} user-id webhook-id]
+  (let [r (first (filter #(= (:id %) webhook-id) (list-webhooks webhooks user-id)))]
+    (if (nil? r)
+      (throw (ex-info "Unable to get webhook" {:friendly true :type :pgsql }))
+      r)))
 
 (defn delete-webhook [{:keys [db]} user-id webhook-id]  
   (let [deleted (using-db db delete-webhook! 
                           {:userid user-id :id webhook-id })]
     (if (= deleted 1) 
       {:id webhook-id }
-      (throw (ex-info "Unable to delete" {:friendly true :type :pgsql })))))
+      (throw (ex-info "Unable to delete webhook" {:friendly true :type :pgsql })))))
 
-(defn add-webhook [{:keys [db]} user-id webhook-id payload]
+(defn add-webhook [{:keys [db update-lock]} user-id webhook-id payload]
   (wrap-pgsql-errors
-    (:blob (using-db db insert-webhook<! {:userid user-id
-                                          :blob payload
-                                          :subdomain (:subdomain payload)
-                                          :id webhook-id }))))
+    (locking update-lock
+      (:blob (using-db db insert-webhook<! {:userid user-id
+                                            :blob payload
+                                            :subdomain (:subdomain payload)
+                                            :id webhook-id })))))
 
-(defn update-webhook [{:keys [db] :as webhooks} user-id webhook-id payload]
+(defn update-webhook [{:keys [db update-lock] :as webhooks} user-id webhook-id payload]
   (wrap-pgsql-errors
-    (:blob (using-db db update-webhook<! {:blob payload
-                                          :id webhook-id 
-                                          :subdomain (:subdomain payload)
-                                          :userid user-id }))))
+    (locking update-lock
+      (:blob (using-db db update-webhook<! {:blob payload
+                                            :id webhook-id 
+                                            :subdomain (:subdomain payload)
+                                            :userid user-id })))))
 
-(defn add-filter [{:keys [db] :as webhooks} user-id webhook-id payload]
+(defn add-filter [{:keys [db update-lock] :as webhooks} user-id webhook-id payload]
   {:pre [(nil? (schema/check schema/filter-schema payload))] 
    :post [(nil? (schema/check schema/filter-schema %))] }
-  (let [webhook-ids (map :id (list-webhooks webhooks user-id))
-        correct-owner (boolean (some (set webhook-ids) [webhook-id]))]
-    (if-not correct-owner
-      (throw (ex-info (str "No webhook found for " webhook-id) 
-                      { :friendly true :type :security }))
-      (wrap-pgsql-errors 
-        (with-db db
-          (insert whitelist-entity
-                  (values (merge payload {:userid user-id 
-                                          :webhookid webhook-id
-                                          }))))))))
+  (locking update-lock
+    (let [filter-id (:id payload)
+          webhook (get-webhook webhooks user-id webhook-id)]
+      (->> (update webhook :filters (fn [filters] (conj filters payload)))
+           (update-webhook webhooks user-id webhook-id)
+           :filters
+           (filter #(= (:id %) filter-id))
+           first))))
 
-(defn update-filter [{:keys [db] :as webhooks} user-id webhook-id payload]
-  {:pre [(nil? (schema/check schema/filter-schema payload))] }
-  (let [webhook-ids (map :id (list-webhooks webhooks user-id))
-        correct-owner (boolean (some (set webhook-ids) [webhook-id]))]
-    (if-not correct-owner
-      (throw (ex-info (str "No webhook found for " webhook-id) 
-                      { :friendly true :type :security }))
-      (wrap-pgsql-errors 
-        (with-db db
-          (update whitelist-entity
-                  (where {:id (:id payload)
-                          :userid user-id
-                          :webhookid webhook-id })
-                  (set-fields (merge payload {:userid user-id :webhookid webhook-id }))))))))
+(defn update-filter [{:keys [db update-lock] :as webhooks} user-id webhook-id payload]
+  {:pre [(nil? (schema/check schema/filter-schema payload))] 
+   :post [(nil? (schema/check schema/filter-schema %))] }
+  (locking update-lock
+    (let [filter-id (:id payload)
+          webhook (get-webhook webhooks user-id webhook-id)]
+      (->> (update webhook :filters (fn [filters] 
+                                      (conj 
+                                        (filter #(not= (:id %) filter-id) filters)
+                                        payload)))
+           (update-webhook webhooks user-id webhook-id)
+           :filters
+           (filter #(= (:id %) filter-id))
+           first))))
 
-(defn update-filter [{:keys [db] :as webhooks} user-id webhook-id payload]
-  {:pre [(nil? (schema/check schema/filter-schema payload))] }
-  (let [webhook-ids (map :id (list-webhooks webhooks user-id))
-        correct-owner (boolean (some (set webhook-ids) [webhook-id]))]
-    (if-not correct-owner
-      (throw (ex-info (str "No webhook found for " webhook-id) 
-                      { :friendly true :type :security }))
-      (wrap-pgsql-errors 
-        (with-db db
-          (update whitelist-entity
-                  (where {:id (:id payload)
-                          :userid user-id
-                          :webhookid webhook-id })
-                  (set-fields (merge payload {:userid user-id :webhookid webhook-id }))))))))
-
-(defn delete-filter [{:keys [db]} user-id filter-id]
-  (with-db db
-    (let [_ (delete whitelist-entity
-                    (where {:id filter-id
-                            :userid user-id }))]
-      { :ok true })))
+(defn delete-filter [{:keys [db update-lock] :as webhooks} user-id webhook-id filter-id]
+  (let [webhook (get-webhook webhooks user-id webhook-id)]
+    (locking update-lock
+      (->> (update webhook :filters (fn [filters] 
+                                      (filter #(not= (:id %) filter-id) filters)))
+           (update-webhook webhooks user-id webhook-id)))))

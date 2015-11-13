@@ -1,4 +1,3 @@
 UPDATE webhooks
-SET blob = :blob
-AND subdomain = :subdomain
+SET blob = :blob, subdomain = :subdomain
 WHERE id = :id AND userid = :userid
