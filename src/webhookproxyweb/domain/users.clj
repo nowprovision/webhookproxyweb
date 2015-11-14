@@ -1,12 +1,15 @@
 (ns webhookproxyweb.domain.users
-  "services for users"
-  (:require [clj-uuid :as uuid]
-            [korma.core :refer [insert limit select values where]]
-            [webhookproxyweb.db :refer [user-entity with-db]]
+  (:require [yesql.core :refer [defquery]]
+            [clj-uuid :as uuid]
+            [webhookproxyweb.db :refer [using-db]]
             [webhookproxyweb.external.github :as github]))
 
 
 (defrecord Users [db gh])
+
+(defquery insert-user<! "sql/user-insert.sql")
+(defquery get-user "sql/user-get.sql")
+
 
 (declare find-by add)
 
@@ -26,16 +29,12 @@
 (defmulti find-by (fn [users & args] (first args)))
 
 (defmethod find-by :github-id [{:keys [db]} _ uid]
-  (with-db db
-    (select user-entity
-            (where {:provider "github" :uid (str uid)  })
-            (limit 1))))
+  (using-db db get-user {:uid (str uid)
+                         :provider "github" }))
 
 (defn- add [{:keys [db]} {:keys [provider uid email] }]
-  (let [auto-id (str (uuid/v4))]
-    (with-db db
-      (insert user-entity
-              (values {:id auto-id 
-                       :provider provider
-                       :uid (str uid)
-                       :email email })))))
+  (using-db db insert-user<! 
+            {:id (uuid/v4)
+             :provider provider
+             :uid (str uid)
+             :email email }))

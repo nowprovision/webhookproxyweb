@@ -1,31 +1,23 @@
 (ns webhookproxyweb.db
+  (:import com.mchange.v2.c3p0.ComboPooledDataSource)
   (:require [com.stuartsierra.component :as component]
-            [korma.core :refer [create-entity defentity table has-many]]
-            [korma.db :as kormadb]))
+            [jdbc.pool.c3p0 :as pool]))
 
 (defrecord Database [db-spec]
   component/Lifecycle
   (start [component]
-    (let [conn (kormadb/create-db (kormadb/postgres db-spec))] 
-      ; todo: eager init pool for fast failure
-      (-> component (assoc :pool (-> conn :pool)))))
+    (let [conn (pool/make-datasource-spec 
+                 (merge {:classname "org.postgresql.Driver" } db-spec))] 
+      (assoc component :pool conn)))
   (stop [component]
-    (-> component
-        :pool
-        deref
-        :datasource
-        .close)
+    (-> component :datasource .close)
     (dissoc component :pool)))
 
-(defentity user-entity
-  (table :users))
-
 (defmacro with-db [db# & forms#]
-  `(kormadb/with-db (:pool ~db#)
-    ~@forms#))
+  nil)
 
 (defn using-db [db query-fn query-arg]
-  (query-fn query-arg { :connection @(:pool db) }))
+  (query-fn query-arg { :connection (:pool db) }))
 
 
 
