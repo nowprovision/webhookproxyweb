@@ -15,7 +15,8 @@
   :source-paths ["src" "src-cljc"]
   :main webhookproxyweb.core
   :repl-options {:init-ns webhookproxyweb.repl }
-  :profiles {:repl {:dependencies [[ragtime "0.5.2"]] } }
+  :profiles {:repl {:dependencies [[ragtime "0.5.2"]] } 
+             :dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]] } }
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/core.async "0.2.371"]
                  [org.clojure/java.jdbc "0.4.2"]
