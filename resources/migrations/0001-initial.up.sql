@@ -3,6 +3,7 @@ CREATE TABLE users (
   provider text not null CHECK (provider <> ''::text),
   uid text not null CHECK (uid <> ''::text),
   email text not null CHECK (email <> ''::text),
+  UNIQUE (uid, provider),
   CONSTRAINT user_pk PRIMARY KEY (id)
 );
 
