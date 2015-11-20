@@ -22,13 +22,13 @@
                            :listing
                            [:div
                             [:div
-                             [:button {:on-click #(dispatch [:redirect :add-webhook]) } "Add New Webhook"]]
+                             [:button.btn {:on-click #(dispatch [:redirect :add-webhook]) } "Add New Webhook"]]
                             [:br]
                             (apply conj [listing-component] screen-args)]
                            :update-add
                            [:div
                             [:div
-                             [:button {:on-click #(dispatch [:redirect :list-webhooks]) } "Show Webhooks"]]
+                             [:button.btn {:on-click #(dispatch [:redirect :list-webhooks]) } "Show Webhooks"]]
                             (apply conj [update-add-component] screen-args)])]))
                     ))))
 
@@ -36,15 +36,12 @@
   (let [webhooks (subscribe [:webhooks-changed])]
     (fn [] 
       [:div
-       [:table.listing
+       [:table.listing.table
         [:thead
          [:th "Name"]
          [:th "Description"]
          [:th "Subdomain"]
          [:th "Secret"]
-         [:th "SSL Only?"]
-         [:th ""]
-         [:th ""]
          [:th ""]]
        [:tbody
        (for [item (sort-by :name @webhooks)]
@@ -54,15 +51,12 @@
           [:td (:description item)]
           [:td (:subdomain item)]
           [:td (:secret item)]
-          [:td (:sslonly? item)]
           [:td 
-           [:button {:on-click #(dispatch [:webhook-removed {:id (:id item)}] ) } 
-            "Delete"]]
-          [:td 
-           [:button {:on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) } 
-            "Edit"]]
-          [:td
-           [:button {:on-click #(dispatch [:redirect :list-filters :webhook-id (:id item)]) } 
+           [:button.btn {:on-click #(dispatch [:webhook-removed {:id (:id item)}] ) } 
+            "Delete"]
+           [:button.btn {:on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) } 
+            "Edit"]
+           [:button.btn {:on-click #(dispatch [:redirect :list-filters :webhook-id (:id item)]) } 
             "Edit IP Filters"]]]
           )]]])))
 
@@ -79,7 +73,7 @@
                         @webhook-sub))]
     (fn [] 
       [:div
-       [:h2 "Add new webhook"]
+       [:h3 "Add new webhook"]
        (when (false? (:valid? @form-sub))
          [:div
           [:p "There were problems with your submission."]
@@ -87,7 +81,7 @@
            (for [verror (:errors @form-sub)]
              [:li  (:error verror)])]])
       [bind-fields 
-        [:table
+        [:table.table
         (form-input "Name" {:field :text 
                             :id :name 
                             :placeholder "Name"})
@@ -103,7 +97,7 @@
         ] staging]
        [:br]
        [:div
-        [:button {:on-click #(dispatch [form-event
+        [:button.btn {:on-click #(dispatch [form-event
                                         {:data @staging 
                                          :id (or webhook-id (:id @staging))
                                          :form-id form-id }]) } 

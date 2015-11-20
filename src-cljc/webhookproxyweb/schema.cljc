@@ -11,9 +11,13 @@
     (s/pred (fn [s] (and (string? s) (>= (count s) len-min) (<= (count s) len-max))))
     { :constraint-msg (str "must be between " len-min " and " len-max " in length") } ))
   
-(def uuid-str (s/pred (and (fn [x] (string? x) (= (count x) 36)))))
+(def uuid-str (s/pred (fn [x] (and (string? x) (= (count x) 36)))))
 
-(def ip-str s/Str)
+
+;; TODO: better validation for ipv4, consider ipv6 too
+(def ip-str (with-meta
+              (s/pred (fn [x] (and (string? x) (re-find #"^(\d{1,3}\.){3}\d{1,3}$" x))))
+              { :constraint-msg "must ipv4 and in form 1.2.3.4" }))
 
 (def filter-schema 
   { :id uuid-str

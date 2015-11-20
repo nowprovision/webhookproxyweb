@@ -36,7 +36,7 @@
     (POST "/api/webhooks/:id/filters" req (filter-action webhooks req))))
 
 (defn list-webhooks [webhooks req]
-  (let [user-id (-> req :session :uid)
+  (let [user-id (-> req :session :id)
         result (webhooks/list-webhooks webhooks user-id)]
     { :body (map (partial sanitize-against-schema schema/webhook-schema) 
                  result) }))
@@ -45,7 +45,7 @@
 
 (defmethod webhook-action :new  [webhooks req]
   (schema/validate (request-schema schema/webhook-schema) (-> req :body))
-  (let [user-id (-> req :session :uid)
+  (let [user-id (-> req :session :id)
         webhook-id (-> req :body :id)
         payload (-> req :body :data)
         result (webhooks/add-webhook webhooks user-id webhook-id payload)]
@@ -53,7 +53,7 @@
 
 (defmethod webhook-action :modify  [webhooks req]
   (schema/validate (request-schema schema/webhook-schema) (-> req :body))
-  (let [user-id (-> req :session :uid)
+  (let [user-id (-> req :session :id)
         webhook-id (-> req :body :id)
         payload (-> req :body :data)
         result (webhooks/update-webhook webhooks user-id webhook-id payload)]
@@ -61,7 +61,7 @@
 
 (defmethod webhook-action :delete [webhooks req]
   (schema/validate (request-schema schema/webhook-schema) (-> req :body))
-  (let [user-id (-> req :session :uid)
+  (let [user-id (-> req :session :id)
         webhook-id (-> req :body :id)
         result (webhooks/delete-webhook webhooks user-id webhook-id)]
     { :body (sanitize-against-schema schema/webhook-schema result) }))
@@ -69,21 +69,21 @@
 (defmulti filter-action (fn [webhooks req] (keyword (-> req :body :action))))
 
 (defmethod filter-action :new [webhooks req]
-  (let [user-id (-> req :session :uid)
+  (let [user-id (-> req :session :id)
         webhook-id (-> req :params :id)
         payload (-> req :body :data)
         op-result (webhooks/add-filter webhooks user-id webhook-id payload)]
     { :body (webhooks/get-webhook webhooks user-id webhook-id) }))
 
 (defmethod filter-action :modify [webhooks req]
-  (let [user-id (-> req :session :uid)
+  (let [user-id (-> req :session :id)
         webhook-id (-> req :params :id)
         payload (-> req :body :data)
         op-result (webhooks/update-filter webhooks user-id webhook-id payload)]
     { :body (webhooks/get-webhook webhooks user-id webhook-id) }))
 
 (defmethod filter-action :delete [webhooks req]
-  (let [user-id (-> req :session :uid)
+  (let [user-id (-> req :session :id)
         filter-id (-> req :body :id)
         webhook-id (-> req :params :id)
         result (webhooks/delete-filter webhooks user-id webhook-id filter-id)]

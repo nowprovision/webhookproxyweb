@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <title>WebHookProxy Admin UI</title>
     <script type="text/javascript" src="/js/goog/base.js"></script>
@@ -6,15 +7,17 @@
     <script>
       goog.require("webhookproxyweb.core");
     </script>
-    <script type="text/javascript" src="/js/vendor/bootstrap.js"></script>
+    <!--<script type="text/javascript" src="/js/vendor/bootstrap.js"></script>-->
     <link rel="stylesheet" href="/css/bootstrap.css"/>
     <link rel="stylesheet" href="/css/bootstrap-theme.css"/>
     <link rel="stylesheet" href="/css/site.css"/>
   </head>
     <body>
-      <div id="app">Loading...</div>
-      <script>
-        webhookproxyweb.core.run();
-      </script>
+      <div class="container">
+        <div id="app">Loading...</div>
+        <script>
+          webhookproxyweb.core.run();
+        </script>
+      </div>
     </body>
 </html>

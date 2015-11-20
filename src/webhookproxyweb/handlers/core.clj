@@ -1,4 +1,4 @@
-(ns webhookproxyweb.handlers.static
+(ns webhookproxyweb.handlers.core
   (:require [clojure.java.io :as io]
             [com.stuartsierra.component :as component]
             [compojure.core :refer :all]
@@ -7,7 +7,7 @@
 
 (declare build-routes)
 
-(defrecord StaticHandlers [users root-path]
+(defrecord CoreHandlers [users root-path]
   component/Lifecycle
   (start [component]
     (assoc component :routes (build-routes users root-path)))
@@ -20,19 +20,22 @@
 
 (defn with-github-code-check [users root-path req]
   (if-let [code (-> req :params :code)]
-    (let [uid (users/github-enrollment-and-identify users code)]
+    (let [user-details (users/github-enrollment-and-identify users code)]
       ;; redirect without query params so ?code= querystring is not bookmarked
       {:status 302 
        ;:headers (with-no-cache { "Location" (:uri req) })
        :headers { "Location" (:uri req) } ; 90% sure no cache no req if query code is unique
-       :body "" 
-       :session {:authenticated? true :uid uid :roles [:account-admin]} })
+       :body ""
+       :session (merge user-details
+                       {:authenticated? true :roles [:account-admin] } )})
     (with-headers (io/file root-path "index.html"))))
 
 (defn build-routes [users root-path]
   (with-security [:open]
     (GET "/whoami" req { :body (or (-> req :session) {} ) })
     (GET "/loggedin" req (with-headers (io/file root-path "loggedin.html")))
+    (POST "/logout" req { :body {} :session {} }) ;make it idempotic hence :open
+    ;;(GET "/callback" req (github-auth-callback users req))
     (GET "*" req (with-github-code-check users root-path req))))
 
 

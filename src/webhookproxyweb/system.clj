@@ -6,8 +6,7 @@
             [webhookproxyweb.domain.users :refer [map->Users]]
             [webhookproxyweb.domain.webhooks :refer [map->WebHooks]]
             [webhookproxyweb.handlers.webhooks :refer [map->WebHookHandlers]]
-            [webhookproxyweb.handlers.static :refer [map->StaticHandlers]]
-            [webhookproxyweb.handlers.users :refer [map->UserHandlers]]
+            [webhookproxyweb.handlers.core :refer [map->CoreHandlers]]
             [webhookproxyweb.external.github :refer [map->GithubConnectionManager]]
             [webhookproxyweb.web :refer [map->WebApp]]
             [webhookproxyweb.server :refer [map->HttpKitServer]]))
@@ -27,17 +26,15 @@
      :webhooks (component/using (map->WebHooks {}) [:db])
      ;; register handlers
      :webhook-handlers (component/using (map->WebHookHandlers {}) [:webhooks])
-     :users-handlers (component/using (map->UserHandlers {}) [:users])
-     :static-handlers (component/using
-                        (map->StaticHandlers { :root-path (-> config :static :root-path) })
+     :core-handlers (component/using
+                        (map->CoreHandlers { :root-path (-> config :static :root-path) })
                         [:users])
      ;; middleware placeholder
      :extra-middleware []
      ;; pass handlers to web-app
      :web-app (component/using (map->WebApp {}) [:extra-middleware
                                                      :webhook-handlers
-                                                     :users-handlers
-                                                     :static-handlers])
+                                                     :core-handlers ])
      ;; pass web-app to web server
      :http-server (component/using 
                     (map->HttpKitServer (-> config :http-server))

@@ -33,7 +33,10 @@
          (let [[active-screen & screen-args] (or @screen-atom :default)]
            [:div 
             [:h1 "Webhookproxy Control Panel"]
-            [:button { :on-click #(dispatch [:logout]) } "Logout" ]
+            [:div
+             [:span "Logged in as " (:email @logged-in) " "]
+            [:a {:on-click #(dispatch [:logout]) } "Logout" ]]
+            [:br]
             (case active-screen
               :filters
               [:div
@@ -52,7 +55,7 @@
           (if @login-started
             [:h1 "Logging you in..." @login-started]
             [:div
-             [:button { :on-click #(dispatch [:start-auth-flow]) } "Login"]]
+             [:button.btn { :on-click #(dispatch [:start-auth-flow]) } "Login again"]]
             )])])))
 
 (defn ^:export root-render [& args] 

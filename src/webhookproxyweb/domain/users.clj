@@ -24,13 +24,11 @@
         github-email (-> result :identity :email)]
     (locking (:update-lock users)
       (let [existing-user (find-by users :github-id github-id)
-            user (or (first existing-user) 
-                     (add users {:provider "github"
-                                 :uid github-id
-                                 :email github-email }))
-            user-id (:id user)]
-        user-id))))
-
+            _ (println "E" existing-user)]
+        (or (first existing-user) 
+            (add users {:provider "github"
+                        :uid github-id
+                        :email github-email }))))))
     
 (defmulti find-by (fn [users & args] (first args)))
 

@@ -20,14 +20,11 @@
                         (case active-screen
                           :listing
                           [:div
-                           [:table
-                            [:tr
-                             [:td
-                              [:button { :on-click #(dispatch [:redirect :list-webhooks]) }
-                               "Show All Webhooks"]]
-                             [:td
-                              [:button { :on-click #(dispatch [:redirect :edit-webhook :webhook-id webhook-id]) }
-                               (str "Edit Webhook Settings")]]] ]
+                           [:div
+                            [:button.btn { :on-click #(dispatch [:redirect :list-webhooks]) }
+                             "Show All Webhooks"]
+                            [:button.btn { :on-click #(dispatch [:redirect :edit-webhook :webhook-id webhook-id]) }
+                             (str "Edit Webhook Settings")]]
                            (apply conj [listing-component] webhook-id screen-args)]
                           :update-add
                           (apply conj [update-add-component] webhook-id screen-args)))
@@ -39,16 +36,17 @@
     (fn []
       [:div
        [:h2 "IP Filters"]
-       [:button {:on-click #(dispatch [:redirect :add-filter 
+       [:button.btn {:on-click #(dispatch [:redirect :add-filter 
                                        :webhook-id webhook-id]) } 
         "Add IP Filter"]
+       [:br]
+       [:br]
        (when (zero? (:count @filters))
          [:p "There are currently no IP filters for this webhook defined."])
-       [:table
+       [:table.table
         [:thead
          [:th "Description"]
          [:th "IP"]
-         [:th ""]
          [:th ""]]
         [:tbody
         (for [{:keys [id ip description] :as vfilter} 
@@ -57,14 +55,13 @@
                       [:td description]
                       [:td ip]
                       [:td 
-                      [:button {:on-click 
+                      [:button.btn {:on-click 
                                 #(dispatch [:redirect :edit-filter 
                                             :webhook-id webhook-id
                                             :filter-id id
                                             ]) } 
-                       "Edit"]] 
-                      [:td
-                      [:button {:on-click 
+                       "Edit"] 
+                      [:button.btn {:on-click 
                                 #(dispatch [:filter-removed { :id id 
                                                              :context { :webhook-id webhook-id }
                                                              } ]) } 
@@ -90,14 +87,14 @@
            (for [verror (:errors @form-sub)]
              [:li  (:error verror)])]])
        [bind-fields 
-        [:table
+        [:table.table
          (form-input "Description" { :field :text :id :description :placeholder "Branch office VPN gateway" })
-         (form-input "IP or IP mask" { :field :text :id :ip :placeholder "123.123.123.123/24" })
+         (form-input "IP address" { :field :text :id :ip :placeholder "1.2.3.4" })
          ] staging] 
        [:br]
-       [:button {:on-click #(dispatch [:redirect :list-filters 
+       [:button.btn {:on-click #(dispatch [:redirect :list-filters 
                                        :webhook-id webhook-id]) } "Cancel"]
-       [:button {:on-click #(dispatch [action {:data @staging 
+       [:button.btn {:on-click #(dispatch [action {:data @staging 
                                                :id (:id @staging)
                                                :context { :webhook-id webhook-id }
                                                :form-id form-id }]) } 
