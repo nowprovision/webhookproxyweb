@@ -18,6 +18,8 @@
    :body io-body })
 
 
+(defn appendq [str]
+  (if (re-match #"?") 
 (defn with-github-code-check [users root-path req]
   (if-let [code (-> req :params :code)]
     (let [user-details (users/github-enrollment-and-identify users code)]
@@ -26,8 +28,9 @@
         (println "Redirecting" (:uri req))
         {:status 302 
          ;:headers (with-no-cache { "Location" (:uri req) })
-         :headers (with-no-cache { "Location" (:uri req) }) ; 90% sure no cache no req if query code is unique
-         :body ""
+         ; weird nginx seems to reapply querystring without leading ?
+         :headers (with-no-cache { "Location" (str (:uri req) "?") }) ; 90% sure no cache no req if query code is unique
+         :body "302. Moved"
          :session (merge user-details
                          {:authenticated? true :roles [:account-admin] } )}))
     (with-headers (io/file root-path "index.html"))))
