@@ -18,8 +18,6 @@
    :body io-body })
 
 
-(defn appendq [str]
-  (if (re-match #"?") 
 (defn with-github-code-check [users root-path req]
   (if-let [code (-> req :params :code)]
     (let [user-details (users/github-enrollment-and-identify users code)]
