@@ -22,7 +22,7 @@
                                                  :ring.middleware.anti-forgery/anti-forgery-token)]
                               (POST "/logout" {:format :json
                                                :params {}
-                                               :headers {:X-XSRF-Token xsrf-token} 
+                                               :headers { "X-XSRF-Token" xsrf-token } 
                                                :response-format :json
                                                :error-handler (fn [_] nil)
                                                :handler (fn [_] nil) })
@@ -43,6 +43,9 @@
                         (dispatch [:fetch-webhooks]))
                       (dispatch [:start-auth-flow])
                       ))
+        :headers {"Cache-Control" "no-cache, no-store, must-revalidate"
+                  "Pragma" "no-cache"
+                  "Expires" "0" }
         :error-handler (fn [] nil) }
        (json-get "/whoami"))
   db)

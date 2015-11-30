@@ -23,7 +23,7 @@
     (let [user-details (users/github-enrollment-and-identify users code)]
       ;; redirect without query params so ?code= querystring is not bookmarked
       (do
-        (println "Redirecting" (:uri req))
+        (println "Code" code "Redirecting" (:uri req))
         {:status 302 
          ;:headers (with-no-cache { "Location" (:uri req) })
          ; weird nginx seems to reapply querystring without leading ?

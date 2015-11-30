@@ -39,7 +39,8 @@
                              (println (clj->js (:class el-attrs)))
                              [:button el-attrs el-body])) 
         :component-did-mount (fn [this] 
-                               (.upgradeElement js/componentHandler (.getDOMNode this))) }))))
+                               (let [chandler (goog.object.get js/window "componentHandler")]
+                                 ((goog.object.get chandler "upgradeElement") (.getDOMNode this)))) }))))
 
 (defn action-button  [el-attrs el-body]
   [button el-attrs el-body [:mdl-button--rspace :mdl-button--bspace]])
@@ -48,7 +49,7 @@
   [:table.mdl-data-table.mdl-js-data-table.mdl-data-table--selectable.mdl-shadow--2dp
    [:thead
     (for [header headers]
-      [:th (:title header)])
+      ^{:key (str "thead-" (:title header)) } [:th (:title header)])
       [:th]]
    [:tbody
     (if (empty? items)
@@ -59,11 +60,11 @@
                        :on-click #(dispatch add-action) } [:i.material-icons "add" ] ]
         ]]
       (for [item items]
-        [:tr
-         (for [header headers :let [data (get item (:key header))]]
-           [:td data])
-         (actions item)
-         ])) ]])
+        ^{:key (:id item) } [:tr
+                             (for [header headers :let [data (get item (:key header))]]
+                              ^{:key (str (:id item) "-" (:key header)) } [:td data])
+                             (actions item)
+                             ])) ]])
 
 
 

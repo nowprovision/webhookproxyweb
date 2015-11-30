@@ -31,7 +31,9 @@
                         [:main.mdl-layout__content
                          [:div.page-content
                           content]]]) 
-        :component-did-mount (fn [this] 
-                               (.upgradeElement js/componentHandler (.getDOMNode this))) 
+     :component-did-mount (fn [this] 
+                            (let [chandler (goog.object.get js/window "componentHandler")]
+                              ((goog.object.get chandler "upgradeElement") (.getDOMNode this)))
+                            ) 
      }))
 
