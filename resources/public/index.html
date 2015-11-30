@@ -4,20 +4,14 @@
     <title>WebHookProxy Admin UI</title>
     <script type="text/javascript" src="/js/goog/base.js"></script>
     <script type="text/javascript" src="/js/app/main.js"></script>
-    <script>
-      goog.require("webhookproxyweb.core");
-    </script>
-    <!--<script type="text/javascript" src="/js/vendor/bootstrap.js"></script>-->
-    <link rel="stylesheet" href="/css/bootstrap.css"/>
-    <link rel="stylesheet" href="/css/bootstrap-theme.css"/>
-    <link rel="stylesheet" href="/css/site.css"/>
+    <script> goog.require("webhookproxyweb.core"); </script>
+    <link rel="stylesheet" href="/css/material.min.css"/>
+    <link rel="stylesheet" href="/css/material-ext.css"/>
+    <script src="/js/material.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
   </head>
-    <body>
-      <div class="container">
-        <div id="app">Loading...</div>
-        <script>
-          webhookproxyweb.core.run();
-        </script>
-      </div>
-    </body>
+  <body>
+    <div id="app">Loading...</div>
+    <script> webhookproxyweb.core.run(); </script>
+  </body>
 </html>

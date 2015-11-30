@@ -3,6 +3,7 @@
   (:require [freeman.ospa.core 
              :refer [register-sub 
                      register-handler
+                     register-route
                      subscribe 
                      dispatch 
                      resolve-route] 
@@ -23,9 +24,13 @@
                                                :params {}
                                                :headers {:X-XSRF-Token xsrf-token} 
                                                :response-format :json
-                                               :handler nil })
+                                               :error-handler (fn [_] nil)
+                                               :handler (fn [_] nil) })
                               { } ;reset app state to empty
                               )))
+
+(register-route :logout "/logout" #(dispatch [:logout]))
+
 
 (defn json-get [url opts]
   (GET url (merge {:response-format :json :keywords? true  } opts)))

@@ -16,17 +16,17 @@ body {
   -moz-box-sizing: border-box;
 }
 
-table {
+xtable {
   border: 1px solid #c0c0c0;
   border-spacing: 0px;
   border-collapse: collapse;
 }
-table td, table th {
+xtable td, xtable th {
   border: 1px solid #c0c0c0;
   padding: 4px;
 }
 
-table th {
+xtable th {
   text-align: left;
 }
 

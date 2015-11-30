@@ -9,7 +9,7 @@
 (defn size-between [len-min len-max]
   (with-meta
     (s/pred (fn [s] (and (string? s) (>= (count s) len-min) (<= (count s) len-max))))
-    { :constraint-msg (str "must be between " len-min " and " len-max " in length") } ))
+    { :constraint-msg (str "must be between " len-min " and " len-max " characters in length") } ))
   
 (def uuid-str (s/pred (fn [x] (and (string? x) (= (count x) 36)))))
 
@@ -17,7 +17,11 @@
 ;; TODO: better validation for ipv4, consider ipv6 too
 (def ip-str (with-meta
               (s/pred (fn [x] (and (string? x) (re-find #"^(\d{1,3}\.){3}\d{1,3}$" x))))
-              { :constraint-msg "must ipv4 and in form 1.2.3.4" }))
+              { :constraint-msg "must IPv4 and in format 1.2.3.4" }))
+
+(def subdomain (with-meta
+              (s/pred (fn [x] (and (string? x) (re-find #"^[a-zA-Z0-9][a-zA-Z0-9-]{2,36}[a-zA-Z0-9]$" x))))
+              { :constraint-msg "subdomain must be at between 4 to 36 characters - only letters, digits and dashes" }))
 
 (def filter-schema 
   { :id uuid-str
@@ -27,8 +31,9 @@
 (def webhook-schema 
   {:id uuid-str
    :name (size-between 1 50) 
-   :subdomain (size-between 1 200)
-   :secret (size-between 8 50) 
+   :subdomain subdomain
+   :secret (size-between 6 50) 
+   :filtering-enabled s/Bool
    :description (size-between 1 200)
    (s/optional-key :filters) [filter-schema]
    })

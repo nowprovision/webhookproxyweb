@@ -23,11 +23,9 @@
     (swap! active-system system/start)))
 
 (defn stop [& args]
-  (swap! active-system system/stop))
+  (when @active-system
+    (swap! active-system system/stop)))
 
 (defn restart [& args]
-  (when @active-system (stop))
+  (stop)
   (start))
-
-(defn -main [& args]
-  (start args))

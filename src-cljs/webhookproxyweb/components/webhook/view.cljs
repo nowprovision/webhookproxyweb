@@ -6,6 +6,9 @@
             [webhookproxyweb.utils :as utils]
             [webhookproxyweb.components.shared :refer [bind-fields
                                                        form-input 
+                                                       action-button
+                                                       button
+                                                       table
                                                        mask-loading]]))
             
 (declare listing-component update-add-component)
@@ -14,51 +17,47 @@
   (let [sub-screen (subscribe [:screen-changed :webhooks])
         webhooks-loaded (subscribe [:webhooks-loaded])]
     (fn [] 
-      (mask-loading webhooks-loaded 
-                    (fn [] 
-                      (let [[active-screen & screen-args] @sub-screen]
-                        [:div
-                         (case active-screen
-                           :listing
-                           [:div
-                            [:div
-                             [:button.btn {:on-click #(dispatch [:redirect :add-webhook]) } "Add New Webhook"]]
-                            [:br]
-                            (apply conj [listing-component] screen-args)]
-                           :update-add
-                           [:div
-                            [:div
-                             [:button.btn {:on-click #(dispatch [:redirect :list-webhooks]) } "Show Webhooks"]]
-                            (apply conj [update-add-component] screen-args)])]))
-                    ))))
+      (let [[active-screen & screen-args] @sub-screen]
+        [:div
+         (case active-screen
+           :listing
+            (apply conj [listing-component] screen-args)
+           :update-add
+            (apply conj [update-add-component] screen-args))]))))
 
 (defn listing-component []
   (let [webhooks (subscribe [:webhooks-changed])]
     (fn [] 
-      [:div
-       [:table.listing.table
-        [:thead
-         [:th "Name"]
-         [:th "Description"]
-         [:th "Subdomain"]
-         [:th "Secret"]
-         [:th ""]]
-       [:tbody
-       (for [item (sort-by :name @webhooks)]
-         ^{:key (:name item)} 
-         [:tr 
-          [:td (:name item)]
-          [:td (:description item)]
-          [:td (:subdomain item)]
-          [:td (:secret item)]
+      (table
+        [{ :title "Name" :key :name }
+         { :title "Description" :key :description }
+         { :title "Subdomain" :key :subdomain }
+         { :title "Secret" :key :secret }]
+        (sort-by :name @webhooks)
+        (fn [item]
           [:td 
-           [:button.btn {:on-click #(dispatch [:webhook-removed {:id (:id item)}] ) } 
-            "Delete"]
-           [:button.btn {:on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) } 
-            "Edit"]
-           [:button.btn {:on-click #(dispatch [:redirect :list-filters :webhook-id (:id item)]) } 
-            "Edit IP Filters"]]]
-          )]]])))
+           [action-button {:id "remove-webhook"
+                           :on-click #(dispatch [:webhook-removed { :id (:id item) }]) }
+            [:i.material-icons "delete"]]
+           [action-button {:on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) }
+            [:i.material-icons "mode_edit"]]
+           [action-button {:on-click #(dispatch [:redirect :list-filters :webhook-id (:id item)]) }
+            [:i.material-icons "lock"]]])
+        "webhooks"
+        [:redirect :add-webhook]
+        )
+      )))
+           ;[:button.mdl-button.mdl-js-button.mdl-button--fab.mdl-button--mini-fab.mdl-button--colored
+            ;{:on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) } 
+            ;[:i.material-icons "mode_edit"]]
+           ;[:button.mdl-button.mdl-js-button.mdl-button--fab.mdl-button--mini-fab.mdl-button--colored
+            ;{:on-click #(dispatch [:webhook-removed {:id (:id item)}] ) } 
+            ;[:i.material-icons "delete"]]
+           ;[:button.mdl-button.mdl-js-button.mdl-button--fab.mdl-button--mini-fab.mdl-button--colored
+            ;{:on-click #(dispatch [:redirect :list-filters :webhook-id (:id item)]) } 
+            ;[:i.material-icons "lock"]]
+           ;]]
+          ;)]]])))
 
 
 (defn update-add-component [webhook-id]
@@ -69,11 +68,11 @@
         webhook-sub (subscribe [:webhook-changed webhook-id])
         staging (ratom (if is-new {:id (utils/uuid-str)
                                     :description ""
+                                    :filtering-enabled false
                                     :subdomain "" }
                         @webhook-sub))]
     (fn [] 
       [:div
-       [:h3 "Add new webhook"]
        (when (false? (:valid? @form-sub))
          [:div
           [:p "There were problems with your submission."]
@@ -94,10 +93,12 @@
         (form-input "Secret" {:field :text 
                               :id :secret 
                               :placeholder "Secret url suffix"})
+        (form-input "Filtering Enabled?" {:field :checkbox 
+                                          :id :filtering-enabled })
         ] staging]
        [:br]
        [:div
-        [:button.btn {:on-click #(dispatch [form-event
+        [button {:on-click #(dispatch [form-event
                                         {:data @staging 
                                          :id (or webhook-id (:id @staging))
                                          :form-id form-id }]) } 

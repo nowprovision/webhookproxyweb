@@ -44,5 +44,11 @@
                                                   }))
   (secretary/add-route! route-path route-fn))
 
-(defn resolve-route [route-url param-map]
-  (secretary.core/render-route route-url (or param-map {})))
+(defn resolve-route 
+  ([route-url]
+   (resolve-route route-url {}))
+  ([route-url param-map]
+   (let [route-url (if (keyword? route-url)
+                    (-> (get @route-map route-url) :path)
+                    route-url)]
+     (secretary.core/render-route route-url (or param-map {})))))

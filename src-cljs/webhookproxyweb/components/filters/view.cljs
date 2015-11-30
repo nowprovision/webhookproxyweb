@@ -6,6 +6,9 @@
             [webhookproxyweb.utils :as utils]
             [webhookproxyweb.components.shared :refer [bind-fields 
                                                        form-input 
+                                                       table
+                                                       button
+                                                       action-button
                                                        mask-loading]]))
 
 (declare listing-component update-add-component)
@@ -19,54 +22,57 @@
                       (let [[active-screen webhook-id & screen-args] @sub-screen]
                         (case active-screen
                           :listing
-                          [:div
-                           [:div
-                            [:button.btn { :on-click #(dispatch [:redirect :list-webhooks]) }
-                             "Show All Webhooks"]
-                            [:button.btn { :on-click #(dispatch [:redirect :edit-webhook :webhook-id webhook-id]) }
-                             (str "Edit Webhook Settings")]]
-                           (apply conj [listing-component] webhook-id screen-args)]
+                          (apply conj [listing-component] webhook-id screen-args)
                           :update-add
                           (apply conj [update-add-component] webhook-id screen-args)))
                       )))))
 
 
 (defn listing-component [webhook-id]
-  (let [filters (subscribe [:filters-changed webhook-id])]
+  (let [webhook (subscribe [:webhook-changed webhook-id])
+        filters (subscribe [:filters-changed webhook-id])]
     (fn []
-      [:div
-       [:h2 "IP Filters"]
-       [:button.btn {:on-click #(dispatch [:redirect :add-filter 
-                                       :webhook-id webhook-id]) } 
-        "Add IP Filter"]
-       [:br]
-       [:br]
-       (when (zero? (:count @filters))
-         [:p "There are currently no IP filters for this webhook defined."])
-       [:table.table
-        [:thead
-         [:th "Description"]
-         [:th "IP"]
-         [:th ""]]
-        [:tbody
-        (for [{:keys [id ip description] :as vfilter} 
-              (sort-by :description @filters)]
-          ^{:key id} [:tr 
-                      [:td description]
-                      [:td ip]
-                      [:td 
-                      [:button.btn {:on-click 
-                                #(dispatch [:redirect :edit-filter 
-                                            :webhook-id webhook-id
-                                            :filter-id id
-                                            ]) } 
-                       "Edit"] 
-                      [:button.btn {:on-click 
-                                #(dispatch [:filter-removed { :id id 
-                                                             :context { :webhook-id webhook-id }
-                                                             } ]) } 
-                       "Delete"] ]
-                      ])] ]])))
+      (if (true? (:filtering-enabled @webhook))
+        [:div
+         [:h6 
+          "IP allowed list for " 
+          [:a.ajax-link {:on-click 
+                         #(dispatch [:redirect :edit-webhook :webhook-id webhook-id]) }
+           (:name @webhook) ]
+          " webhook."]
+         [table
+          [{ :title "Description" :key :description }
+           { :title "IP" :key :ip }]
+          (sort-by :description @filters)
+          (fn [item]
+            [:td 
+             [action-button {:on-click 
+                             #(dispatch [:redirect :edit-filter 
+                                         :webhook-id webhook-id
+                                         :filter-id (:id item)
+                                         ]) }
+              [:i.material-icons "mode_edit"]] 
+             [action-button {:on-click 
+                             #(dispatch [:filter-removed { :id (:id item)
+                                                          :context { :webhook-id webhook-id }
+                                                          } ]) } 
+              [:i.material-icons "delete"]]]
+            )
+          "filters"
+          [:redirect :add-filter :webhook-id webhook-id]]
+         ]
+        [:div
+              
+         [:h6.warning
+          [:i.material-icons "warning"]
+          [:span
+          "Please enable filtering for this webhook first." 
+          [:a.ajax-link 
+           { :on-click #(dispatch [:redirect :edit-webhook :webhook-id webhook-id]) }
+           "Edit settings"]
+          ]]]
+        ))))
+                      
 
 (defn update-add-component [webhook-id filter-id]
   (let [form-id (utils/uuid-keyword)
@@ -78,8 +84,7 @@
                         @existing-filter))]
     (fn [webhook-id] 
       [:div
-       [:h2 (if is-new "Add an allowed IP or IP range"
-                        "Edit allowed IP filter")]
+       [:h6 (if is-new "Add an allowed IP" "Edit allowed IP filter")]
        (when (false? (:valid? @form-sub))
          [:div
           [:p "There were problems with your submission."]
@@ -92,9 +97,7 @@
          (form-input "IP address" { :field :text :id :ip :placeholder "1.2.3.4" })
          ] staging] 
        [:br]
-       [:button.btn {:on-click #(dispatch [:redirect :list-filters 
-                                       :webhook-id webhook-id]) } "Cancel"]
-       [:button.btn {:on-click #(dispatch [action {:data @staging 
+       [button {:on-click #(dispatch [action {:data @staging 
                                                :id (:id @staging)
                                                :context { :webhook-id webhook-id }
                                                :form-id form-id }]) } 

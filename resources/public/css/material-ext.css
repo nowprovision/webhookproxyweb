@@ -1,0 +1,48 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.mdl-button--rspace {
+  margin-right: 10px;
+}
+
+.mdl-button--bspace {
+  margin-bottom: 10px;
+}
+
+div.cbar  {
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.page-content {
+  padding: 37px;
+}
+
+.empty-warning small {
+  vertical-align: top;
+  color: #777;
+}
+
+a.ajax-link {
+  cursor: pointer;
+}
+
+a.mdl-layout-title.ajax-link {
+  color: inherit;
+}
+
+.mdl-textfield__large {
+  width: 300px
+}
+
+h6.warning span {
+  vertical-align: top;
+  margin-left: 10px;
+}
+h6.warning span a {
+  vertical-align: top;
+  margin-left: 10px;
+}

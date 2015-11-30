@@ -12,5 +12,5 @@
   (stop [component]
     (when-let [stopfn (:stopfn component)]
       (stopfn))
-    component))
+    (dissoc component :stopfn)))
 

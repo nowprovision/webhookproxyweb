@@ -10,11 +10,9 @@
                  (merge {:classname "org.postgresql.Driver" } db-spec))] 
       (assoc component :pool conn)))
   (stop [component]
-    (-> component :datasource .close)
+    (when-let [pool (:pool component)]
+      (.close pool))
     (dissoc component :pool)))
-
-(defmacro with-db [db# & forms#]
-  nil)
 
 (defn using-db [db query-fn query-arg]
   (query-fn query-arg { :connection (:pool db) }))

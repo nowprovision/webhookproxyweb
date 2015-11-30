@@ -7,7 +7,7 @@
 (defn form-input [label input-attrs]
   [:tr
    [:td
-   [:label label]]
+   [:label.mdl-textfield__label label]]
    [:td.mdl-textfield
     [:input.form-control.mdl-textfield__input.mdl-textfield__large
      input-attrs]]])

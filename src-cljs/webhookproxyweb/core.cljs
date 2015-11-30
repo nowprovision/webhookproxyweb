@@ -11,6 +11,7 @@
             [webhookproxyweb.sync :as sync]
             [webhookproxyweb.auth :as auth]
             [webhookproxyweb.screens :as screens]
+            [webhookproxyweb.components.layout :refer [layout]]
             [webhookproxyweb.components.webhook.view :as webhook-view]
             [webhookproxyweb.components.filters.view :as filter-view]))
 
@@ -31,12 +32,8 @@
       [:div
        (if @logged-in
          (let [[active-screen & screen-args] (or @screen-atom :default)]
-           [:div 
-            [:h1 "Webhookproxy Control Panel"]
+           [layout [:div 
             [:div
-             [:span "Logged in as " (:email @logged-in) " "]
-            [:a {:on-click #(dispatch [:logout]) } "Logout" ]]
-            [:br]
             (case active-screen
               :filters
               [:div
@@ -50,7 +47,7 @@
               :default 
               [:div]
               )
-            ])
+            ]]])
          [:div 
           (if @login-started
             [:h1 "Logging you in..." @login-started]
