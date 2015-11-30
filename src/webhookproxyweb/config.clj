@@ -12,8 +12,6 @@
                  :client-secret s/Str }
    :db          {:subprotocol s/Str
                  :subname     s/Str
-                 :host        s/Str
-                 :port        s/Int
                  :user        s/Str
                  :password    s/Str}})
 

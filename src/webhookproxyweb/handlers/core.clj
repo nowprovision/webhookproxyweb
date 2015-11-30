@@ -22,12 +22,14 @@
   (if-let [code (-> req :params :code)]
     (let [user-details (users/github-enrollment-and-identify users code)]
       ;; redirect without query params so ?code= querystring is not bookmarked
-      {:status 302 
-       ;:headers (with-no-cache { "Location" (:uri req) })
-       :headers { "Location" (:uri req) } ; 90% sure no cache no req if query code is unique
-       :body ""
-       :session (merge user-details
-                       {:authenticated? true :roles [:account-admin] } )})
+      (do
+        (println "Redirecting" (:uri req))
+        {:status 302 
+         ;:headers (with-no-cache { "Location" (:uri req) })
+         :headers (with-no-cache { "Location" (:uri req) }) ; 90% sure no cache no req if query code is unique
+         :body ""
+         :session (merge user-details
+                         {:authenticated? true :roles [:account-admin] } )}))
     (with-headers (io/file root-path "index.html"))))
 
 (defn build-routes [users root-path]
