@@ -27,14 +27,15 @@
      ;; register handlers
      :webhook-handlers (component/using (map->WebHookHandlers {}) [:webhooks])
      :core-handlers (component/using
-                        (map->CoreHandlers { :root-path (-> config :static :root-path) })
+                        (map->CoreHandlers {:root-path (-> config :static :root-path)
+                                            :debug? (or (-> config :debug) false) })
                         [:users])
      ;; middleware placeholder
      :extra-middleware []
      ;; pass handlers to web-app
      :web-app (component/using (map->WebApp {}) [:extra-middleware
-                                                     :webhook-handlers
-                                                     :core-handlers ])
+                                                 :webhook-handlers
+                                                 :core-handlers ])
      ;; pass web-app to web server
      :http-server (component/using 
                     (map->HttpKitServer (-> config :http-server))

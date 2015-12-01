@@ -30,6 +30,14 @@ a.ajax-link {
   cursor: pointer;
 }
 
+a.mdl-layout-title img {
+  margin-right: 16px;
+}
+
+a.mdl-layout-title {
+  font-weight: bold;
+}
+
 a.mdl-layout-title.ajax-link {
   color: inherit;
 }
@@ -45,4 +53,9 @@ h6.warning span {
 h6.warning span a {
   vertical-align: top;
   margin-left: 10px;
+}
+.loggingin {
+  padding-top: 1em;
+  text-align: center;
+  line-height: 2em;
 }

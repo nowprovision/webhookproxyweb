@@ -6,10 +6,10 @@
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0"]]
   :cljsbuild {:repl-listen-port 9000
-              :builds {:main {:source-paths ["src-cljs" "src-cljc"]
+              :builds {:dev {:source-paths ["src-cljs" "src-cljc"]
                               :figwheel {:on-jsload "webhookproxyweb.core/root-render" }
                               :compiler {:output-dir "resources/public/js"  
-                                         :output-to "resources/public/js/app/main.js"  
+                                         :output-to "resources/public/js/app/main.debug.js"  
                                          :optimizations :none
                                          :pretty-print true}}
                        :prod {:source-paths ["src-cljs" "src-cljc"]

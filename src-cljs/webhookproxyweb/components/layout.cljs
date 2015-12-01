@@ -13,6 +13,9 @@
                           [:a.mdl-layout-title.ajax-link
                            {:alt "Listings"
                             :on-click #(do (dispatch [:redirect :list-webhooks]) false) }
+                           [:img {:src "/img/webhooks.svg"
+                                  :style {:width "50px"
+                                          :height "50px" }} ]
                            "WebHookProxy"]
                           [:div.mdl-layout-spacer]
                           [:nav.mdl-navigation.mdl-layout--large-screen-only
@@ -22,12 +25,17 @@
                            ]]
                          ]
                         [:div.mdl-layout__drawer
-                         [:span.mdl-layout-title "Title"]
+                         [:span.mdl-layout-title "WebHookProxy"]
                          [:nav.mdl-navigation
-                          [:a.mdl-navigation__link "Link"]
-                          [:a.mdl-navigation__link "Link"]
-                          [:a.mdl-navigation__link "Link"]
-                          [:a.mdl-navigation__link "Link"]]]
+                          [:a.mdl-navigation__link.ajax-link 
+                           {:href "#" :on-click #(do (dispatch [:redirect :list-webhooks]) false) }
+                           "Edit Webhooks"]
+                          [:a.mdl-navigation__link.ajax-link
+                          {:on-click #(do (dispatch [:redirect :add-webhook]) false) }
+                           "Add Webhook"]
+                          [:a.mdl-navigation__link.ajax-link
+                           {:on-click #(do (dispatch [:logout]) false) }
+                           "Logout"]]]
                         [:main.mdl-layout__content
                          [:div.page-content
                           content]]]) 

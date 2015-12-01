@@ -12,6 +12,7 @@
             [webhookproxyweb.auth :as auth]
             [webhookproxyweb.screens :as screens]
             [webhookproxyweb.components.layout :refer [layout]]
+            [webhookproxyweb.components.shared :refer [button]]
             [webhookproxyweb.components.webhook.view :as webhook-view]
             [webhookproxyweb.components.filters.view :as filter-view]))
 
@@ -50,9 +51,15 @@
             ]]])
          [:div 
           (if @login-started
-            [:h1 "Logging you in..." @login-started]
-            [:div
-             [:button.btn { :on-click #(dispatch [:start-auth-flow]) } "Login again"]]
+            [:div.loggingin
+             [:h5 "Authenticating..." @login-started]
+             [:small "Please wait a moment"]
+             [:br]
+             [:br]
+             [:img { :alt "Logging in"
+                    :src "/img/loggingin.gif" } ]]
+            [:div.loggingin
+             [button { :on-click #(dispatch [:start-auth-flow]) } "Login again"]]
             )])])))
 
 (defn ^:export root-render [& args] 
