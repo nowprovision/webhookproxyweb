@@ -3,7 +3,9 @@
             [com.stuartsierra.component :as component]
             [compojure.core :refer :all]
             [webhookproxyweb.domain.users :as users]
-            [webhookproxyweb.handlers.shared :refer [with-security with-no-cache]]))
+            [webhookproxyweb.handlers.shared :refer [static-html
+                                                     with-security 
+                                                     with-no-cache]]))
 
 (declare build-routes)
 
@@ -12,10 +14,6 @@
   (start [component]
     (assoc component :routes (build-routes users root-path debug?)))
   (stop [component] component))
-
-(defn with-headers [io-body]
-  {:headers { "Content-Type" "text/html" }
-   :body io-body })
 
 
 (defn with-github-code-check [users root-path debug? req]
@@ -31,15 +29,15 @@
          :body "302. Moved"
          :session (merge user-details
                          {:authenticated? true :roles [:account-admin] } )}))
-    (with-headers (io/file root-path 
-                           (if debug?
-                             "index.debug.html"
-                             "index.prod.html")))))
+    (static-html (io/file root-path 
+                          (if debug?
+                            "index.debug.html"
+                            "index.prod.html")))))
 
 (defn build-routes [users root-path debug?]
   (with-security [:open]
     (GET "/whoami" req { :body (or (-> req :session) {} ) })
-    (GET "/loggedin" req (with-headers (io/file root-path "loggedin.html")))
+    (GET "/loggedin" req (static-html (io/file root-path "loggedin.html")))
     (POST "/logout" req { :body {} :session {} }) ;make it idempotic hence :open
     ;;(GET "/callback" req (github-auth-callback users req))
     (GET "*" req (with-github-code-check users root-path debug? req))))

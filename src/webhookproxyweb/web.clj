@@ -2,6 +2,8 @@
   "component for route aggregation and handler building"
   (:require [com.stuartsierra.component :as component]
             [compojure.core :as compojure]
+            [clojure.core.async :refer [put!]]
+            [clojure.java.io :as io]
             [ring.middleware.defaults :refer [api-defaults wrap-defaults]]
             [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
             [ring.middleware.file :refer [wrap-file]]
@@ -19,26 +21,22 @@
   (stop [component]
     (dissoc component :routes)))
 
-(defn wrap-api-friendly-error [handler]
-  "intercept friendly exception as excepted api errors"
-  (fn [req]
-    (try (handler req)
-         (catch Throwable e
-           (if-let [friendly (some->> e ex-data :friendly)]
-             { :body {:friendly true :error (.getMessage e) } :status 500  }
-             (throw e)
-             )))))
+(defn with-headers [io-body]
+  {:headers { "Content-Type" "text/html" }
+   :body io-body })
 
-(defn handler [{:keys [routes extra-middleware]}]
+
+(defn handler [{:keys [routes extra-middleware error-ch error-router]}]
   "build a ring handler based on component routes"
-  (let [handler (-> 
-                  (apply compojure/routes (or routes []))
-                  (wrap-api-friendly-error)
-                  (wrap-json-body {:bigdecimals? true :keywords? true })
-                  (wrap-anti-forgery)
-                  (wrap-json-response)
-                  (wrap-file "resources/public" { :index-files? false })
-                  (wrap-defaults (assoc api-defaults :session true)))]
-    (reduce (fn [acc middleware]
-              (middleware acc)) handler (or extra-middleware []))))
+  (let [error-middleware (:error-middleware error-router)]
+    (let [handler (-> 
+                    (apply compojure/routes (or routes []))
+                    (wrap-json-body {:bigdecimals? true :keywords? true })
+                    (wrap-anti-forgery)
+                    error-middleware
+                    (wrap-json-response)
+                    (wrap-file "resources/public" { :index-files? false })
+                    (wrap-defaults (assoc api-defaults :session true)))]
+      (reduce (fn [acc middleware]
+                (middleware acc)) handler (or extra-middleware [])))))
 

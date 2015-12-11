@@ -29,6 +29,7 @@
                  [org.postgresql/postgresql "9.3-1104-jdbc41"]
                  [com.stuartsierra/component "0.3.0"]
                  [prismatic/schema "1.0.2"]
+                 [com.taoensso/timbre "4.1.4"]
                  [yesql "0.5.1"]
                  [danlentz/clj-uuid "0.1.6"]
                  [clj-http "2.0.0"]

@@ -8,6 +8,10 @@
 (defn with-static [headers]
   (merge { "Content-Type" "text/html" } headers))
 
+(defn static-html [io-body]
+  {:headers { "Content-Type" "text/html" }
+   :body io-body })
+
 (def error403 {:headers (with-no-cache {"Content-Type" "text/html"})
                :body "<html><body><h1>403. Not authorized</h1></body></html>" 
                :status 403 })
