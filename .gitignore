@@ -16,7 +16,5 @@ pom.xml.asc
 depref/
 /resources/public/out/
 /resources/public/js/*/**
-/resources/public/js/*.js
-!/resources/public/js/vendor/*.js
 .env
 config.edn
