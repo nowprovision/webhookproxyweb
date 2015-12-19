@@ -1,4 +1,5 @@
 (ns webhookproxyweb.components.webhook.view
+  (:require-macros [reagent.ratom :refer [reaction]])
   (:require [freeman.ospa.core :refer [dispatch subscribe ratom]]
             [webhookproxyweb.components.webhook.handlers]
             [webhookproxyweb.components.webhook.subs]
@@ -66,43 +67,45 @@
         is-new (if webhook-id false true)
         form-event (if is-new :webhook-spec-created :webhook-spec-changed)
         webhook-sub (subscribe [:webhook-changed webhook-id])
-        staging (ratom (if is-new {:id (utils/uuid-str)
+        staging (reaction (if is-new {:id (utils/uuid-str)
                                     :description ""
                                     :filtering-enabled false
                                     :subdomain "" }
                         @webhook-sub))]
     (fn [] 
       [:div
-       (when (false? (:valid? @form-sub))
+       ;(let [_ @webhook-sub]
+         (when (false? (:valid? @form-sub))
+           [:div
+            [:p "There were problems with your submission."]
+            [:ul
+             (for [verror (:errors @form-sub)]
+               [:li  (:error verror)])]])
+         [bind-fields 
+          [:table.table
+           (form-input "Name" {:field :text 
+                               :id :name 
+                               :placeholder "Name"})
+           (form-input "Description" {:field :text 
+                                      :id :description 
+                                      :placeholder "Description"})
+           (form-input "Subdomain" {:field :text 
+                                    :id :subdomain 
+                                    :placeholder "Subdomain"})
+           (form-input "Secret" {:field :text 
+                                 :id :secret 
+                                 :placeholder "Secret url suffix"})
+           (form-input "Filtering Enabled?" {:field :checkbox 
+                                             :id :filtering-enabled })
+           ] staging]
+         [:br]
          [:div
-          [:p "There were problems with your submission."]
-          [:ul
-           (for [verror (:errors @form-sub)]
-             [:li  (:error verror)])]])
-      [bind-fields 
-        [:table.table
-        (form-input "Name" {:field :text 
-                            :id :name 
-                            :placeholder "Name"})
-        (form-input "Description" {:field :text 
-                                  :id :description 
-                                  :placeholder "Description"})
-        (form-input "Subdomain" {:field :text 
-                                 :id :subdomain 
-                                 :placeholder "Subdomain"})
-        (form-input "Secret" {:field :text 
-                              :id :secret 
-                              :placeholder "Secret url suffix"})
-        (form-input "Filtering Enabled?" {:field :checkbox 
-                                          :id :filtering-enabled })
-        ] staging]
-       [:br]
-       [:div
-        [button {:on-click #(dispatch [form-event
-                                        {:data @staging 
-                                         :id (or webhook-id (:id @staging))
-                                         :form-id form-id }]) } 
-            (if is-new "Add Webhook" "Update Webhoook")]
-        ]
+          [button {:on-click #(dispatch [form-event
+                                         {:data @staging 
+                                          :id (or webhook-id (:id @staging))
+                                          :form-id form-id }]) } 
+           (if is-new "Add Webhook" "Update Webhoook")]
+          ]
+         ;)
        ])))
 

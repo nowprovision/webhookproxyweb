@@ -1,4 +1,5 @@
 (ns webhookproxyweb.components.filters.view
+  (:require-macros [reagent.ratom :refer [reaction]])
   (:require [freeman.ospa.core :refer [subscribe dispatch ratom]]
             [webhookproxyweb.components.filters.handlers]
             [webhookproxyweb.components.filters.subs]
@@ -80,7 +81,7 @@
         is-new (if filter-id false true)
         action (if is-new :filter-spec-created :filter-spec-changed)
         existing-filter (subscribe [:filter-changed webhook-id filter-id])
-        staging (ratom (if is-new {:id  (utils/uuid-str) :description "" :ip ""}
+        staging (reaction (if is-new {:id  (utils/uuid-str) :description "" :ip ""}
                         @existing-filter))]
     (fn [webhook-id] 
       [:div
