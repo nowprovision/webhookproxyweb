@@ -1,13 +1,20 @@
 (defproject webhookproxyweb "0.1.0-SNAPSHOT"
   :description "Frontend for webhookproxy SaaS"
   :url "https://www.webhookproxy.com"
+  :figwheel { :nrepl-port 8390 
+             :nrepl-middleware ["cider.nrepl/cider-middleware"
+                                "refactor-nrepl.middleware/wrap-refactor"
+                                "cemerick.piggieback/wrap-cljs-repl"]
+             }
   :license {:name "MIT "
             :url "https://opensource.org/licenses/MIT"}
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0"]]
   :cljsbuild {:repl-listen-port 9000
               :builds {:dev {:source-paths ["src-cljs" "src-cljc"]
-                              :figwheel {:on-jsload "webhookproxyweb.core/root-render" }
+                              :figwheel {:on-jsload "webhookproxyweb.core/root-render"
+                                         :nrepl-port 8390
+                                         }
                               :compiler {:output-dir "resources/public/js"  
                                          :output-to "resources/public/js/app/main.debug.js"  
                                          :optimizations :none
@@ -28,6 +35,7 @@
                  [clojure.jdbc/clojure.jdbc-c3p0 "0.3.1"]
                  [org.postgresql/postgresql "9.3-1104-jdbc41"]
                  [com.stuartsierra/component "0.3.0"]
+                 [figwheel-sidecar "0.5.0-2"]
                  [prismatic/schema "1.0.2"]
                  [com.taoensso/timbre "4.1.4"]
                  [yesql "0.5.1"]

@@ -40,6 +40,6 @@
     (GET "/loggedin" req (static-html (io/file root-path "loggedin.html")))
     (POST "/logout" req { :body {} :session {} }) ;make it idempotic hence :open
     ;;(GET "/callback" req (github-auth-callback users req))
-    (GET "*" req (with-github-code-check users root-path debug? req))))
+    (GET "/admin/*" req (with-github-code-check users root-path debug? req))))
 
 

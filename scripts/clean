@@ -1,4 +1,4 @@
 #!/bin/bash
 
 lein clean
-rm -fr resources/public/js
+rm -fr resources/public/js/*/**

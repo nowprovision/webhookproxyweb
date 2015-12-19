@@ -3,14 +3,14 @@
                                        register-route]]))
 
 (register-route :list-webhooks
-                "/" 
+                "/admin/" 
                 (fn [] (dispatch [:change-screen :webhooks :listing])))
 
 (register-route :add-webhook
-                "/tasks/new-webhook" 
+                "/admin/tasks/new-webhook" 
                 (fn [] (dispatch [:change-screen :webhooks :update-add])))
 
 (register-route :edit-webhook
-                "/webhooks/:webhook-id" 
+                "/admin/webhooks/:webhook-id" 
                 (fn [{:keys [webhook-id]}]
                   (dispatch [:change-screen :webhooks :update-add webhook-id])))

@@ -29,8 +29,7 @@
                               { } ;reset app state to empty
                               )))
 
-(register-route :logout "/logout" #(dispatch [:logout]))
-
+(register-route :logout "/admin/logout" #(dispatch [:logout]))
 
 (defn json-get [url opts]
   (GET url (merge {:response-format :json :keywords? true  } opts)))

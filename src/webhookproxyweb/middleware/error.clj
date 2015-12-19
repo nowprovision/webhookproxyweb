@@ -1,6 +1,5 @@
 (ns webhookproxyweb.middleware.error
-  (:require [circleci.rollcage.core :as rollcage]
-            [taoensso.timbre :as timbre :refer (log trace  debug  info  warn  error  fatal  report
+  (:require [taoensso.timbre :as timbre :refer (log trace  debug  info  warn  error  fatal  report
                                                     logf tracef debugf infof warnf errorf fatalf reportf
                                                     spy get-env log-env)]
             [com.stuartsierra.component :as component]
