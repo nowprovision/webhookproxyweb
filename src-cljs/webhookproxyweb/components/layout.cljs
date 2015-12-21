@@ -30,10 +30,13 @@
                                           :height "50px" }} ]
                            "WebHookProxy"]
                           [:div.mdl-layout-spacer]
-                          [:nav.mdl-navigation.mdl-layout--large-screen-only
-                           [:a.mdl-navigation__link.ajax-link {:on-click #(do (dispatch [:redirect :add-webhook]) false) }
-                            "Add Webhook"]
-                           [:a.mdl-navigation__link.ajax-link {:on-click #(do (dispatch [:logout]) false) } "Logout"]
+                          [:nav.mdl-navigation.mdl-layout--large-screen-only.right-actions
+                           [:a.mdl-navigation__link.ajax-link {:style {:font-weight "bold" } :on-click #(do (dispatch [:redirect :add-webhook]) false) }
+                            [:i.material-icons "add"]  
+                            [:span "Add webhook"]]
+                           [:a.mdl-navigation__link.ajax-link {:style {:font-weight "bold" } :on-click #(do (dispatch [:logout]) false) } 
+                            [:i.material-icons "exit_to_app"]  
+                            [:span "Logout"]]
                            ]]
                          ]
                         [:div.mdl-layout__drawer

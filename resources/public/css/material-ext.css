@@ -73,4 +73,13 @@ h6.warning span a {
 .instructions p {
   margin: 0px;
   margin-top: 10px;
+}.
+.right-actions span {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.right-actions i {
+  display: inline-block;
+  padding-right: 8px;
 }
