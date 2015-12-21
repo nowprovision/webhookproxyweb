@@ -61,6 +61,12 @@
             )
           "filters"
           [:redirect :add-filter :webhook-id webhook-id]]
+         [:div.table-footer-link
+          [:a.ajax-link {:alt "add new"
+                         :on-click #(dispatch [:redirect :add-filter :webhook-id webhook-id]) } 
+           [:i.material-icons "add"]  
+           [:span "Add new filter"]
+           ]]
          ]
         [:div
               

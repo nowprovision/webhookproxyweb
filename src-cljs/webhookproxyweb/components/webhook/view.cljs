@@ -29,26 +29,33 @@
 (defn listing-component []
   (let [webhooks (subscribe [:webhooks-changed])]
     (fn [] 
-      (table
-        [{ :title "Name" :key :name }
-         { :title "Description" :key :description }
-         { :title "Subdomain" :key :subdomain }
-         { :title "Secret" :key :secret }]
-        (sort-by :name @webhooks)
-        (fn [item]
-          [:td 
-           [action-button {:title "Remove Webhook"
-                           :on-click #(dispatch [:webhook-removed { :id (:id item) }]) }
-            [:i.material-icons "delete"]]
-           [action-button {:title "Edit Webhook"
-                           :on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) }
-            [:i.material-icons "mode_edit"]]
-           [action-button {:title "Edit IP Filters"
-                           :on-click #(dispatch [:redirect :list-filters :webhook-id (:id item)]) }
-            [:i.material-icons "lock"]]])
-        "webhooks"
-        [:redirect :add-webhook]
-        )
+      [:div
+       (table
+         [{ :title "Name" :key :name }
+          { :title "Description" :key :description }
+          { :title "Subdomain" :key :subdomain }
+          { :title "Secret" :key :secret }]
+         (sort-by :name @webhooks)
+         (fn [item]
+           [:td 
+            [action-button {:title "Remove Webhook"
+                            :on-click #(dispatch [:webhook-removed { :id (:id item) }]) }
+             [:i.material-icons "delete"]]
+            [action-button {:title "Edit Webhook"
+                            :on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) }
+             [:i.material-icons "mode_edit"]]
+            [action-button {:title "Edit IP Filters"
+                            :on-click #(dispatch [:redirect :list-filters :webhook-id (:id item)]) }
+             [:i.material-icons "lock"]]])
+         "webhooks"
+         [:redirect :add-webhook]
+         )
+       [:div.table-footer-link
+        [:a.ajax-link {:alt "add new"
+                       :on-click #(dispatch [:redirect :add-webhook]) } 
+         [:i.material-icons "add"]  
+         [:span "Add new webhook"]
+         ]]]
       )))
            ;[:button.mdl-button.mdl-js-button.mdl-button--fab.mdl-button--mini-fab.mdl-button--colored
             ;{:on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) } 

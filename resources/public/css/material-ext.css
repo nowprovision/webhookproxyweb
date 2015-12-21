@@ -59,3 +59,14 @@ h6.warning span a {
   text-align: center;
   line-height: 2em;
 }
+.table-footer-link {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+.table-footer-link span {
+  font-weight: bold;
+  display: inline-block;
+  padding-top: 2px;
+  padding-left: 8px;
+  vertical-align: top;
+}
