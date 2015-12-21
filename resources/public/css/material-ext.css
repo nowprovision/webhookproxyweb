@@ -70,3 +70,7 @@ h6.warning span a {
   padding-left: 8px;
   vertical-align: top;
 }
+.instructions p {
+  margin: 0px;
+  margin-top: 10px;
+}

@@ -55,7 +55,18 @@
                        :on-click #(dispatch [:redirect :add-webhook]) } 
          [:i.material-icons "add"]  
          [:span "Add new webhook"]
-         ]]]
+         ]]
+       [:div.instructions
+        [:h6 "Usage instructions:"]
+        [:p "1) Webhook URL is https://<subdomain>.webhookproxy.com/webhook/<secret>"]
+        [:small "This is the post URL you provide to the third party as your webhook endpoint / postback URL"]
+        [:p "2) Long Poll URL is https://<subdomain>.webhookproxy.com/poll/<secret>"]
+        [:small "This is the get URL you long poll with your http client lib to pick up new payloads"]
+        [:p "3) Reply URL is https://<subdomain>.webhookproxy.com/reply/<secret>"]
+        [:small "This is the reply URL you post to in order to return a repsonse to original web hook callee,
+                using a X-InReplyTo request headers which matches the X-ReplyId header found in payload response of 2"]
+        ]
+       ]
       )))
            ;[:button.mdl-button.mdl-js-button.mdl-button--fab.mdl-button--mini-fab.mdl-button--colored
             ;{:on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) } 
