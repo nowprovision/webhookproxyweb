@@ -12,6 +12,14 @@
     [:input.form-control.mdl-textfield__input.mdl-textfield__large
      input-attrs]]])
 
+(defn select-input [label input-attrs & children]
+  [:tr
+   [:td
+   [:label label]]
+   [:td.mdl-textfield
+    (concat [:select.form-control.mdl-textfield__input.mdl-textfield__large
+     input-attrs] children)]])
+
 (defn mask-loading [loaded-atom component-fn]
   (if @loaded-atom
     (component-fn)

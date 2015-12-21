@@ -25,6 +25,7 @@
 
 (def filter-schema 
   { :id uuid-str
+    :type (s/enum "webhook" "pollreply")
     :description (size-between 1 200)
     :ip ip-str })
 

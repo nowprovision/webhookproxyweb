@@ -7,6 +7,7 @@
             [webhookproxyweb.utils :as utils]
             [webhookproxyweb.components.shared :refer [bind-fields 
                                                        form-input 
+                                                       select-input
                                                        table
                                                        button
                                                        action-button
@@ -101,6 +102,9 @@
        [bind-fields 
         [:table.table
          (form-input "Description" { :field :text :id :description :placeholder "Branch office VPN gateway" })
+         (select-input "Filter Side" { :field :list :id :type }
+                       [:option {:key "webhook"} "Web hook side" ]
+                       [:option {:key "pollreply" } "Poll/reply side" ])
          (form-input "IP address" { :field :text :id :ip :placeholder "1.2.3.4" })
          ] staging] 
        [:br]
