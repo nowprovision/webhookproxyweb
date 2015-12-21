@@ -4,6 +4,18 @@
                                        resolve-route]]
             [reagent.core :refer [create-class]]))
 
+
+(defn hide-drawer []
+  ; this hacky - find a better way to handle material integration
+  (-> 
+    (.querySelector js/document ".mdl-layout__drawer")
+    (.-classList)
+    (.remove "is-visible"))
+  (-> 
+    (.querySelector js/document ".mdl-layout__obfuscator")
+    (.-classList)
+    (.remove "is-visible")))
+
 (defn layout [content]
   (create-class
     {:reagent-render (fn [content]
@@ -28,13 +40,21 @@
                          [:span.mdl-layout-title "WebHookProxy"]
                          [:nav.mdl-navigation
                           [:a.mdl-navigation__link.ajax-link 
-                           {:href "#" :on-click #(do (dispatch [:redirect :list-webhooks]) false) }
+                           {:href "#" :on-click #(do 
+                                                   (dispatch [:redirect :list-webhooks]) 
+                                                   (hide-drawer)
+                                                   false) }
                            "Edit Webhooks"]
                           [:a.mdl-navigation__link.ajax-link
-                          {:on-click #(do (dispatch [:redirect :add-webhook]) false) }
+                          {:on-click #(do 
+                                        (dispatch [:redirect :add-webhook]) 
+                                        (hide-drawer)
+                                        false) }
                            "Add Webhook"]
                           [:a.mdl-navigation__link.ajax-link
-                           {:on-click #(do (dispatch [:logout]) false) }
+                           {:on-click #(do (dispatch [:logout]) 
+                                           (hide-drawer)
+                                           false) }
                            "Logout"]]]
                         [:main.mdl-layout__content
                          [:div.page-content
