@@ -55,9 +55,9 @@
                                          ]) }
               [:i.material-icons "mode_edit"]] 
              [action-button {:on-click 
-                             #(dispatch [:filter-removed { :id (:id item)
-                                                          :context { :webhook-id webhook-id }
-                                                          } ]) } 
+                             #(do (when (.confirm js/window "Are you sure you want to delete this filter?")
+                                    (dispatch [:filter-removed { :id (:id item)
+                                                                :context { :webhook-id webhook-id } } ]))) } 
               [:i.material-icons "delete"]]]
             )
           "filters"

@@ -59,7 +59,10 @@
              [:img { :alt "Logging in"
                     :src "/img/loggingin.gif" } ]]
             [:div.loggingin
-             [button { :on-click #(dispatch [:start-auth-flow]) } "Login again"]]
+             [button { :on-click #(dispatch [:start-auth-flow]) } "Login again"]
+             [:br]
+             [:br]
+             [:a {:href "//www.webhookproxy.com" } "project homepage"]]
             )])])))
 
 (defn ^:export root-render [& args] 

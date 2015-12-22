@@ -83,3 +83,6 @@ h6.warning span a {
   display: inline-block;
   padding-right: 8px;
 }
+.mdl-mini-footer {
+  padding: 10px 14px;
+}

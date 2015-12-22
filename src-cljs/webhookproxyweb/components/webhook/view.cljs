@@ -38,15 +38,16 @@
          (sort-by :name @webhooks)
          (fn [item]
            [:td 
-            [action-button {:title "Remove Webhook"
-                            :on-click #(dispatch [:webhook-removed { :id (:id item) }]) }
-             [:i.material-icons "delete"]]
             [action-button {:title "Edit Webhook"
                             :on-click #(dispatch [:redirect :edit-webhook :webhook-id (:id item)]) }
              [:i.material-icons "mode_edit"]]
             [action-button {:title "Edit IP Filters"
                             :on-click #(dispatch [:redirect :list-filters :webhook-id (:id item)]) }
-             [:i.material-icons "lock"]]])
+             [:i.material-icons "lock"]]
+            [action-button {:title "Remove Webhook"
+                            :on-click #(do (when (.confirm js/window "Are you sure you want to delete this webhook?")
+                                             (dispatch [:webhook-removed { :id (:id item) }]))) }
+             [:i.material-icons "delete"]]])
          "webhooks"
          [:redirect :add-webhook]
          )
