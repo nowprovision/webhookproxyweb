@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>WebHookProxy - Write clients not servers</title>
-        <meta name="description" content="Webhook proxy inverter">
+        <meta name="description" content="easy integration with webhooks and postbacks by using simple http clients ">
         <meta name="keywords" content="webhook, postback,web hook,tunnel,web callback,api endpoint proxy">
         <meta name="robots" content="noodp, noydir">
         <meta name="google" content="notranslate">
@@ -80,26 +80,32 @@ h1 div#whp-title {
 	<div class="wr pt-large pb-large">
 		<main class="main">
 			<article id="main-info" class="main__intro main__article">
-				<p><strong>WebHookProxy allows you to write  clients for webhooks insteads of servers.  </strong></p>
-				<p>WebhookProxy will assign you a unique subdomain protected by SSL which acts as your webhook/postback listening URL,
-        you then call in with your long polling client to collect payloads and post back replies. No need to embed a web server in your application, no local firewall rules to
-        add, no tunneling service. Thus you can even integrate with webhook/postbacks with a simple bash script using curl/wget.</p>
+				<p><strong>WebHookProxy - Integrate with webhooks using simple http client calls.  </strong></p>
+				<p><span style="font-size: 0.9em; color: red; font-weight: bold">Status: Alpha</span></p>
+				<p>WebHookProxy provides easy integration for your applications and scripts with services that promote 
+        webhooks (also known as postbacks) to communicate important information back (for example a Paypal transaction
+        notification). By adopting a don't call us, we'll you call you model, this simplifies the integration
+        work required, meaning no per webhook complexed http servers, no firewall rules, no tunnelling service. 
+        WebHookProxy provides a unique webhook address for you to provide third parties services (or perhaps internal) to 
+        use as the webhook URL. Your applications then simply poll another unique address to collect incoming
+        payloads, and reply using a third unique address. By inverting the server / client model, it becomes
+        possible to integrate with webhooks using even a simple shell script with curl/wget in loop. 
 			</article>
 			<article id="quickstart" class="main__quickstart main__article">
-				<p>Use our free software as service with SSL ready to go</p>
-        <pre><a href="/admin/" style="font-weight: bold">Sign-in with your github login</a></pre>
-				<p>Self host it yourself, all webhookproxy related projects are open source on github.</p>
+				<p>Free SaaS: Get your SSL protected WebHookProxy endpoints ready to go:</p>
+        <pre><a href="/admin/" style="font-weight: bold; font-size: 1.2em;">Sign-in with your github login</a></pre>
+				<p>Self host it, all webhookproxy related projects are open source.</p>
 <pre>
 <a href="http://www.github.com/nowprovision/webhookproxy">http://www.github.com/nowprovision/webhookproxy</a> (Core)
 <a href="http://www.github.com/nowprovision/webhookproxy-saas">http://www.github.com/nowprovision/webhookproxy-saas</a> (SaaS)
-<a href="http://www.github.com/nowprovision/webhookproxy-saas">http://www.github.com/nowprovision/webhookproxy-web</a> (Web / Admin UI)
+<a href="http://www.github.com/nowprovision/webhookproxy-web">http://www.github.com/nowprovision/webhookproxy-web</a> (Web / Admin UI)
 <a href="http://www.github.com/nowprovision/webhookproxy-single">http://www.github.com/nowprovision/webhookproxy-single</a> (Simple)
 </pre>
 				<p>No warranty, implied or explicit, free, MIT licensed.</p>
 			</article>
 			<article id="docs" class="main__features main__article">
 				<h3>Docs</h3>
-        <p>Urgently required docs coming soon, otherwise see code and readme.md on github projects, apologises.</p>
+        <p>Urgently required docs coming soon, in meantime this <a href="https://github.com/nowprovision/webhookproxy/blob/master/readme.md">readme.md</a> has more information</p>
       </article>
 			<article id="features" class="main__features main__article">
 				<h3>Features</h3>
@@ -124,7 +130,10 @@ h1 div#whp-title {
 			</article>
 			<article id="developers" class="main__developers main__article">
 				<h3>Developers</h3>
-        <p>Contributions accepted and acknowledged. See github projects</p>
+        <p>WebHookProxy is primarily developed in the <a href="https://golang.org/">Go Programming Language</a>,
+          using PostgreSQL in a NoSQL fashion for persistence. The web admin UI is written in Clojurescript with the
+          admin server side in Clojure.</p>
+        <p>Contributions and code review appreciated and acknowledged. See github projects.</p>
 			</article>
 		</main>
 		<!-- -->
@@ -135,7 +144,8 @@ h1 div#whp-title {
 			</p>
 			<h3>Sponsored by</h3>
 			<p>
-				<a href="http://www.deployhq.com" title="Deploy code from Codebase, GitHub & BitBucket in minutes!">DeployHQ</a><br>
+				<a href="http://www.deployhq.com" title="Deploy code from Codebase, GitHub & BitBucket in minutes!">DeployHQ - Automate deploys</a><br>
+				<a href="https://www.linode.com/?utm_source=referral&utm_medium=website&utm_content=webhookproxy&utm_campaign=sponsorship" title="Linode VPS Servers">Linode - Cloud Hosting</a><br>
       </p> 
 		</aside>
 	</div>
@@ -143,7 +153,9 @@ h1 div#whp-title {
 	<footer class="bc-endeavour">
 		<div class="wr pt-medium pb-medium">
 			<a class="footer__monogram dib" href="/">
-        <a href="//localtunnel.me" title="localtunnel.me" style="font-size:13px; padding-top: 10px;color: #efefef; text-decoration: none">Theme hurriedly ripped from localtunnel.me (with permission)</a>
+        <a href="//localtunnel.me" title="localtunnel.me" style="font-size:13px; padding-top: 10px;color: #efefef; text-decoration: none">Theme hurriedly ripped from <span style="text-decoration: underline">localtunnel.me</span> with permission.</a>
+        <br>
+        <a href="https://www.linode.com/?utm_source=referral&utm_medium=website&utm_content=webhookproxy&utm_campaign=sponsorship" title="linode.com" style="font-size:13px; padding-top: 10px;color: #efefef; text-decoration: none">Cloud hosting sponsored by <span style="text-decoration: underline">Linode</span></a>
 			</a>
 			<a class="footer__github-link c-white" href="//github.com/nowprovision/webhookproxy"><strong>View the project on Github</strong></a>
 		</div>
