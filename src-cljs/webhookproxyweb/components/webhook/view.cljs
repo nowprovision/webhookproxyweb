@@ -62,10 +62,13 @@
         [:p "1) Webhook URL is https://<subdomain>.webhookproxy.com/webhook/<secret>"]
         [:small "This is the post URL you provide to the third party as your webhook endpoint / postback URL"]
         [:p "2) Long Poll URL is https://<subdomain>.webhookproxy.com/poll/<secret>"]
-        [:small "This is the get URL you long poll with your http client lib to pick up new payloads"]
+        [:small "This is the get URL you long poll with your http client lib to pick up new payloads. 
+                If no payload is available after 30 seconds it returns a 204 empty response, otherwise
+                provides the payload in the body with a 200 response. You can run any number of
+                concurrent clients, or simple loop with curl/wget if using a script."]
         [:p "3) Reply URL is https://<subdomain>.webhookproxy.com/reply/<secret>"]
         [:small "This is the reply URL you post to in order to return a repsonse to original web hook callee,
-                using a X-InReplyTo request headers which matches the X-ReplyId header found in payload response of 2"]
+                using a X-InReplyTo request header which matches the X-ReplyId header found in payload response of 2"]
         ]
        ]
       )))
