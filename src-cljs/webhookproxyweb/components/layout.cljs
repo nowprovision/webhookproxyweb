@@ -61,7 +61,16 @@
                            "Logout"]]]
                         [:main.mdl-layout__content
                          [:div.page-content
-                          content]]]) 
+                          content]]
+                        [:footer.mdl-mini-footer	
+                         [:div.mdl-mini-footer__left-section
+                          [:p 
+                           
+                            [:i.material-icons "star"]  
+                           "Maintained by " 
+                           [:a { :href "//twitter.com/nowprovision" } 
+                            "Matt Freeman"]
+                           ]]] ]) 
      :component-did-mount (fn [this] 
                             (let [chandler (goog.object.get js/window "componentHandler")]
                               ((goog.object.get chandler "upgradeElement") (.getDOMNode this)))
