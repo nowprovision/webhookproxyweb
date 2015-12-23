@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>WebHookProxy - Write clients not servers</title>
-        <meta name="description" content="easy integration with webhooks and postbacks by using simple http clients ">
-        <meta name="keywords" content="webhook, postback,web hook,tunnel,web callback,api endpoint proxy">
+        <title>WebHookProxy - Write clients not servers - Use webhooks from shell scripts</title>
+        <meta name="description" content="easy integration with webhooks and postbacks by using simple http clients">
+        <meta name="keywords" content="webhook, postback,web hook,tunnel,web callback,api endpoint proxy, script webhooks">
         <meta name="author" content="Matt Freeman">
         <meta name="robots" content="noodp, noydir">
         <meta name="google" content="notranslate">
@@ -13,25 +13,25 @@
         <meta name="HandheldFriendly" content="true">
         <meta name="MobileOptimized" content="320">
         <meta http-equiv="cleartype" content="on">
-
-        <!-- Favicon & Touch icon tags -->
-        
-        <link rel="icon" href="favicon.ico" type="image/x-icon">
-        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-        <!--[if lt IE 9]><script src="assets/js/ie-head.min.js"></script><![endif]-->
-        <link async href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
-        <!-- inject:css --><link rel="stylesheet" href="css/homepage.min.css"><!-- endinject -->
-        <style>
-h1 div#whp-title {
-  color: #ffffff;
-  font-size: 48px !important;
-  display: inline-block;
-  margin: 0px;
-  padding: 0px;
-  padding-left: 15px;
-  padding-top: 1px;
-}
-        </style>
+        <link rel="stylesheet" href="css/homepage.min.css">
+        <link rel="stylesheet" href="css/overrides.css">
+        <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+        <meta name="theme-color" content="#ffffff">
 	</head>  
 	<body>
 
@@ -41,6 +41,9 @@ h1 div#whp-title {
       <path d="M 181.90 70.17 C 187.26 67.60 193.37 68.71 199.09 68.51 C 202.86 68.35 206.40 69.78 209.68 71.49 C 225.30 78.69 235.22 98.49 228.78 115.01 C 227.50 118.33 225.69 121.45 224.70 124.89 C 225.13 126.42 225.92 127.82 226.66 129.22 C 235.99 145.60 245.21 162.05 254.24 178.59 C 262.39 176.72 270.51 173.91 278.97 174.38 C 285.97 174.60 293.08 173.79 299.98 175.33 C 304.65 176.30 309.43 177.05 313.82 179.00 C 324.82 183.97 335.46 190.32 343.55 199.42 C 356.94 212.93 365.82 230.97 367.50 249.98 C 367.75 255.33 367.72 260.69 367.47 266.04 C 364.38 295.20 345.32 322.12 318.73 334.55 C 310.42 337.68 301.93 340.78 293.02 341.53 C 287.66 341.74 282.30 341.58 276.95 341.62 C 269.24 341.67 261.92 338.95 254.68 336.63 C 245.14 333.78 236.64 328.24 229.16 321.77 C 227.11 319.95 224.89 318.18 223.49 315.78 C 223.44 314.13 224.97 313.12 225.92 311.99 C 230.85 307.23 235.69 302.37 240.48 297.48 C 242.13 295.93 243.69 294.03 245.94 293.39 C 250.29 296.25 253.81 300.27 258.50 302.63 C 263.40 305.13 268.66 307.01 274.01 308.27 C 280.31 309.02 286.72 308.91 293.04 308.40 C 306.65 305.76 319.34 297.60 326.52 285.61 C 335.90 271.96 336.99 253.69 331.28 238.39 C 328.65 231.42 323.53 225.83 318.24 220.76 C 313.12 215.68 306.84 211.90 300.19 209.20 C 292.42 206.65 284.11 207.68 276.07 207.62 C 264.77 207.86 255.13 214.87 247.21 222.31 C 245.09 223.89 243.38 221.34 242.50 219.65 C 229.40 196.12 215.88 172.83 202.70 149.34 C 200.99 146.37 199.58 143.12 197.18 140.63 C 194.76 139.15 191.74 139.78 189.06 139.35 C 171.50 137.41 157.71 120.46 158.47 102.97 C 158.12 93.47 163.83 85.37 169.51 78.31 C 172.70 74.37 177.44 72.29 181.90 70.17 Z" />
       <path d="M 65.30 181.45 C 71.34 178.39 77.88 176.53 84.29 174.43 C 86.14 179.15 87.70 183.96 88.67 188.94 C 89.67 194.04 91.54 198.94 92.38 204.07 C 92.90 206.71 89.65 207.29 87.87 208.08 C 71.83 213.07 58.50 226.40 54.09 242.68 C 51.12 254.14 51.92 266.62 56.75 277.46 C 61.75 289.64 72.46 298.80 84.36 303.94 C 96.99 309.42 111.60 308.32 124.22 303.41 C 134.12 299.47 141.78 291.39 147.33 282.49 C 153.49 272.96 155.51 261.15 154.07 249.99 C 153.62 246.85 153.29 243.70 153.09 240.54 C 161.74 240.48 170.40 240.49 179.05 240.46 C 183.38 240.35 187.63 241.47 191.95 241.44 C 210.99 241.48 230.02 241.41 249.05 241.43 C 253.46 234.00 259.77 227.43 267.84 224.04 C 273.58 221.49 280.00 222.53 286.09 222.34 C 293.21 221.98 299.49 226.00 304.79 230.30 C 311.51 235.67 315.60 243.80 317.19 252.16 C 318.19 261.33 316.30 271.16 310.56 278.56 C 304.91 286.34 296.01 292.73 286.06 292.57 C 279.53 292.70 272.48 293.69 266.57 290.23 C 258.61 286.57 252.73 279.74 248.31 272.35 C 227.89 272.67 207.44 272.13 187.03 272.58 C 184.56 275.75 184.25 280.09 182.75 283.76 C 175.79 301.92 164.03 319.21 146.59 328.64 C 135.57 335.46 122.81 338.70 110.07 340.29 C 103.23 340.37 96.30 340.89 89.53 339.72 C 70.42 336.15 52.58 325.91 39.82 311.24 C 24.26 293.55 16.95 268.92 20.20 245.62 C 22.99 227.08 31.42 209.15 45.19 196.26 C 51.43 190.74 57.88 185.32 65.30 181.45 Z" />
 		</symbol>
+    <symbol id="github-icon" viewBox="0 0 16 16">
+      <path d="M14.7 4.34c0.13-0.32 0.55-1.59-0.13-3.31 0 0-1.05-0.33-3.44 1.3C10.13 2.05 9.06 2.01 8 2.01c-1.06 0-2.13 0.04-3.13 0.32C2.48 0.69 1.43 1.03 1.43 1.03 0.75 2.75 1.17 4.02 1.3 4.34 0.49 5.21 0 6.33 0 7.69 0 12.84 3.33 14 7.98 14 12.63 14 16 12.84 16 7.69 16 6.33 15.51 5.21 14.7 4.34zM8 13.02c-3.3 0-5.98-0.15-5.98-3.35 0-0.76 0.38-1.48 1.02-2.07 1.07-0.98 2.9-0.46 4.96-0.46 2.07 0 3.88-0.52 4.96 0.46 0.65 0.59 1.02 1.3 1.02 2.07C13.98 12.86 11.3 13.02 8 13.02zM5.49 8.01c-0.66 0-1.2 0.8-1.2 1.78s0.54 1.79 1.2 1.79c0.66 0 1.2-0.8 1.2-1.79S6.15 8.01 5.49 8.01zM10.51 8.01C9.85 8.01 9.31 8.8 9.31 9.79s0.54 1.79 1.2 1.79 1.2-0.8 1.2-1.79C11.71 8.8 11.18 8.01 10.51 8.01z" />
+    </symbol>
 		<symbol id="lock-icon" viewBox="0 0 12 16">
 			<path d="M11,6V5c0-2.8-2.2-5-5-5S1,2.2,1,5v1C0.4,6,0,6.4,0,7v8c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V7C12,6.4,11.6,6,11,6z M3,5
 				c0-1.7,1.3-3,3-3s3,1.3,3,3v1H8H4H3V5z M10,14H2V8h8V14z"/>
@@ -73,9 +76,13 @@ h1 div#whp-title {
         <div id="whp-title">WebHookProxy</div>
 			</a>
 		</h1>
-		<h2 class="header__subline bc-endeavour pt-small pb-small">
-			<div class="wr">Write clients, not servers</div>
-		</h2>
+    <nav>
+      <ul class="wr">
+        <li><a href="https://webhookproxy.atlassian.net/wiki/">Documentation</a></li>
+        <li><a href="/admin/">Sign up - free!</a></li>
+        <li style="border-right: none"><a href="/admin/">Sign in - with github</a></li>
+      </ul>
+		</nav>
 	</header>
 	<!-- -->
 	<div class="wr pt-large pb-large">
@@ -86,54 +93,95 @@ h1 div#whp-title {
 				<p>WebHookProxy provides easy integration for your applications and scripts with services that promote 
         webhooks, also known as postbacks, to communicate important information back, for instance a Paypal transaction
         notification. Adopting a /don't call us, we'll you call you/ model simplifies the integration work required, reducing http server complexity and eliminating the need for firewall rules and tunnelling services.
-        WebHookProxy provides a unique webhook address for you to provide third party services  to 
-        use as the webhook URL. Your applications then simply poll another unique address to collect incoming
-        payloads, and reply using a third unique address. By inverting the server / client model, it becomes
-        possible to integrate with webhooks using even a simple shell script with curl/wget in loop. 
-			</article>
-			<article id="quickstart" class="main__quickstart main__article">
-				<p>Free SaaS: Get your SSL protected WebHookProxy endpoints ready to go:</p>
-        <pre><a href="/admin/" style="font-weight: bold; font-size: 1.2em;">Sign-in with your github login</a></pre>
-				<p>Self host it, all webhookproxy related projects are open source.</p>
-<pre>
-<a href="http://www.github.com/nowprovision/webhookproxy">http://www.github.com/nowprovision/webhookproxy</a> (Core)
-<a href="http://www.github.com/nowprovision/webhookproxy-saas">http://www.github.com/nowprovision/webhookproxy-saas</a> (SaaS)
-<a href="http://www.github.com/nowprovision/webhookproxyweb">http://www.github.com/nowprovision/webhookproxyweb</a> (Web / Admin UI)
-<a href="http://www.github.com/nowprovision/webhookproxy-single">http://www.github.com/nowprovision/webhookproxy-single</a> (Simple)
-</pre>
-				<p>No warranty, implied or explicit, free, MIT licensed.</p>
+        <br><br>
+        The full source code for the project, including both the SaaS and Admin UI components are
+        open source, free, and MIT licensed, available on github.
+        <br><br>
+        Our ready-to-go free SaaS implementation provides a unique webhook address for you to provide third party services  to 
+        use as the webhook URL. Your applications or scripts then simply poll another unique address to collect incoming
+        payloads, and reply using a third unique address.  <a href="/admin/" style="font-weight: bold">Sign-up for free</a>.
+        <br><br>
+        By inverting the server / client model, it becomes
+        possible to integrate with webhooks using even a simple shell scripts with for example curl/wget in a loop. 
+
 			</article>
 			<article id="docs" class="main__features main__article">
+				<h3>Code</h3>
+				<ul class="repo__list">
+					<li>
+						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#github-icon"></use></svg>
+            <a href="https://www.github.com/nowprovision/webhookproxy">https://www.github.com/nowprovision/webhookproxy</a> (Core)
+					</li>
+          <br>
+					<li>
+						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#github-icon"></use></svg>
+            <a href="https://www.github.com/nowprovision/webhookproxy-saas">https://www.github.com/nowprovision/webhookproxy-saas</a> (SaaS)
+          </li>
+          <br>
+					<li>
+						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#github-icon"></use></svg>
+            <a href="https://www.github.com/nowprovision/webhookproxyweb">https://www.github.com/nowprovision/webhookproxyweb</a> (Web / Admin UI)
+					</li>
+          <br>
+					<li>
+						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#github-icon"></use></svg>
+            <a href="https://www.github.com/nowprovision/webhookproxy-single">https://www.github.com/nowprovision/webhookproxy-single</a> (Simple)
+					</li>
+          <br>
+          <p>No warranty, implied or explicit, free, MIT licensed.</p>
+				</ul>
+      </article>
+			<article id="docs" class="main__features main__article">
 				<h3>Docs</h3>
-        <p>Urgently required docs coming soon, in meantime this <a href="https://github.com/nowprovision/webhookproxy/blob/master/readme.md">readme.md</a> has more information.</p>
+        <p>Documentation and examples are currently being worked on via our <a href="https://webhookproxy.atlassian.net/wiki/">Confluence wiki</a>.
+        <br><br>
+        In meantime this rough <a href="https://github.com/nowprovision/webhookproxy/blob/master/readme.md">readme.md</a> has more information.</p>
       </article>
 			<article id="features" class="main__features main__article">
 				<h3>Features</h3>
-				<ul class="features__list">
+				<ul class="repo__list">
 					<li>
 						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#lock-icon"></use></svg>
-						<span>Secure https endpoint for your all webhooks and postback needs</span>
+						<span>No need for to open firewall ports or use tunneling services</span>
 					</li>
+          <br>
 					<li>
 						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#device-icon"></use></svg>
-						<span>Data-agnostic - json/xml/form-urlencoded/binary </span>
+						<span>Data-agnostic - json/xml/form-urlencoded/binary payloads</span>
 					</li>
-					<li>
-						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#network-icon"></use></svg>
-						<span>Reliably hosted at Linode</span>
-					</li>
+          <br>
 					<li>
 						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#cloud-icon"></use></svg>
 						<span>Collect via long polling - even wget/curl in a loop will suffice</span>
 					</li>
 				</ul>
+				<h3>Free SaaS at WebHookProxy.com</h3>
+				<ul class="repo__list">
+					<li>
+						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#network-icon"></use></svg>
+						<span>Reliably hosted at Linode</span>
+          </li>
+          <br>
+					<li>
+						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#network-icon"></use></svg>
+						<span>Free SSL secured endpoint subdomains https://whatever.webhookproxy.com/
+            </span>
+          </li>
+          <br>
+					<li>
+						<svg class="dib" role="presentation" aria-hidden="true"><use xlink:href="#network-icon"></use></svg>
+            <span>Ready to go, no deployment, no charges
+            </span>
+          </li>
+        </ul>
 			</article>
 			<article id="developers" class="main__developers main__article">
 				<h3>Developers</h3>
         <p>WebHookProxy is primarily developed in the <a href="https://golang.org/">Go Programming Language</a>,
         using <a href="http://www.postgresql.org">PostgreSQL</a> in a NoSQL fashion for persistence. The web admin UI is written in <a href="https://github.com/clojure/clojurescript">ClojureScript</a>   with the
           admin server side in <a href="http://www.clojure.org">Clojure</a>.</p>
-        <p>Contributions and code review appreciated and acknowledged. See github projects.</p>
+        <p>Contributions, improvements, fixes and code review appreciated and acknowledged. 
+        Further documentation would be immensly helpful.</p>
 			</article>
 		</main>
 		<!-- -->
@@ -142,9 +190,14 @@ h1 div#whp-title {
 			<p>
 				<a href="//twitter.com/nowprovision">@nowprovision</a><br>
 			</p>
+			<h3>Licensed as</h3>
+      <p>
+      <a href="https://opensource.org/licenses/MIT">MIT License (MIT)</a>
+      </p>
 			<h3>Sponsored by</h3>
 			<p>
-				<a href="http://www.deployhq.com" title="Deploy code from Codebase, GitHub & BitBucket in minutes!">DeployHQ - Automate deploys</a><br>
+      <a href="//www.atlassian.com" title="Atlassian">Atlassian - Confluence Wiki</a><br>
+				<a href="https://www.deployhq.com" title="Deploy code from Codebase, GitHub & BitBucket in minutes!">DeployHQ - Automate deploys</a><br>
 				<a href="https://www.linode.com/?utm_source=referral&utm_medium=website&utm_content=webhookproxy&utm_campaign=sponsorship" title="Linode Cloud Servers">Linode - Cloud Servers</a><br>
       </p> 
 		</aside>
@@ -153,11 +206,10 @@ h1 div#whp-title {
 	<footer class="bc-endeavour">
 		<div class="wr pt-medium pb-medium">
 			<a class="footer__monogram dib" href="/">
-        <a href="//localtunnel.me" title="localtunnel.me" style="font-size:13px; padding-top: 10px;color: #efefef; text-decoration: none">Theme hurriedly ripped from <span style="text-decoration: underline">localtunnel.me</span> with permission.</a>
+        <a href="//localtunnel.me" title="localtunnel.me" style="font-size:13px; padding-top: 10px;color: #efefef; text-decoration: none">Theme based on website from <span style="text-decoration: underline">localtunnel.me</span> with permission.</a>
         <br>
         <a href="https://www.linode.com/?utm_source=referral&utm_medium=website&utm_content=webhookproxy&utm_campaign=sponsorship" title="linode.com" style="font-size:13px; padding-top: 10px;color: #efefef; text-decoration: none">Cloud hosting sponsored by <span style="text-decoration: underline">Linode</span></a>
 			</a>
-			<a class="footer__github-link c-white" href="//github.com/nowprovision/webhookproxy"><strong>View the project on Github</strong></a>
 		</div>
 	</footer>
 

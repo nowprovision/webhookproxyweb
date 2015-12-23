@@ -1,0 +1,50 @@
+h1 div#whp-title {
+  color: #ffffff;
+  font-size: 42px !important;
+  display: inline-block;
+  margin: 0px;
+  padding: 0px;
+  padding-left: 15px;
+  padding-top: 1px;
+}
+
+header nav {
+  background: #0068B0;
+  padding: 5px;
+}
+header nav ul li, header nav ul {
+  list-style: none;
+}
+header nav ul {
+  text-align: right;
+}
+header nav ul li {
+  display: inline-block;
+  color: #efefef;
+  border-right: 2px solid #c0c0c0;
+  padding: 0px 17px 0px 7px;
+  font-weight: bold;
+}
+
+header nav ul li a {
+  color: inherit;
+}
+.repo__list svg {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    margin-left: -22px;
+    display: inline-block;
+    margin-right: 14px;
+    fill: #002b48;
+    opacity: .5;
+}
+.repo__list {
+  padding-left: 0;
+  list-style-type: none;
+}
+
+.repo__list li {
+    position: relative;
+    padding-left: 30px;
+}
