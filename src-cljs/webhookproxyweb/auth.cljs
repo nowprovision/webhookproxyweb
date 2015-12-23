@@ -56,7 +56,7 @@
 
 (defn github-login-url [redirect-uri] 
   (str "https://github.com/login/oauth/authorize?"
-       "scope=user:email&client_id=" 
+       "client_id=" 
        (from-config [:github-auth :client-id])
        "&redirect_uri=" redirect-uri))
 
