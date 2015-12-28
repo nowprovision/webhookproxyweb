@@ -36,6 +36,7 @@
    :secret (size-between 6 50) 
    :filtering-enabled s/Bool
    :description (size-between 1 200)
+   (s/optional-key :autoreply) s/Bool
    (s/optional-key :filters) [filter-schema]
    })
 

@@ -121,6 +121,8 @@
                                  :placeholder "Secret url suffix"})
            (form-input "Filtering Enabled?" {:field :checkbox 
                                              :id :filtering-enabled })
+           (form-input "Auto Reply? (empty 200)" {:field :checkbox 
+                                             :id :autoreply })
            ] staging]
          [:br]
          [:div
