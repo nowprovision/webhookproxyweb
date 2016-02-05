@@ -1,4 +1,4 @@
-(defproject webhookproxyweb "0.1.0-SNAPSHOT"
+(defproject webhookproxyweb "0.1.1-SNAPSHOT"
   :description "Frontend for webhookproxy SaaS"
   :url "https://www.webhookproxy.com"
   :figwheel { :nrepl-port 8390 
