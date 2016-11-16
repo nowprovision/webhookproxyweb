@@ -1,10 +1,11 @@
 # WebHookProxy Web Frontend
 
+** This is no longer maintained/supported **
+
 ## Introduction
 
-This is the web frontend and server that works with for multi-tenant webhookproxy.com saas 
-[webhookproxy-saas](http://www.github.com/nowprovision/webhookproxy-saas) 
-that uses the backend library [webhookproxy](http://www.github.com/nowprovision/webhookproxy).
+This is the web frontend and server that works with for multi-tenant webhookproxy.com saas webhookproxy-saas
+that uses the backend library webhookprox
 
 All open source.
 
@@ -21,7 +22,4 @@ PRs, code reviews welcome, contributions will be noted.
 
 MIT
 
-## Author
-
-Matt Freeman - [@nowprovision](http://www.twitter.com/nowprovision)
 
