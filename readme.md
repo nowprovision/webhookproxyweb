@@ -16,7 +16,6 @@ on the backend. A small amount of cljc to facilitate schema sharing is also used
 
 A lot of stuff isn't optimal, I am well aware. Minimal viable product. 
 
-PRs, code reviews welcome, contributions will be noted.
 
 ## License
 
